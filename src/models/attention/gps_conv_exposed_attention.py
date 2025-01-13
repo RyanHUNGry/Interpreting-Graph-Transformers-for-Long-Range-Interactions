@@ -101,7 +101,7 @@ class GPSConvExposedAttention(torch.nn.Module):
         h, weights = self.attn(h, h, h, key_padding_mask=~mask,
                             need_weights=True)
         
-        print(weights.shape)
+        print(weights)
 
         h = h[mask]
         h = F.dropout(h, p=self.dropout, training=self.training)
