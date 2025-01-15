@@ -15,3 +15,6 @@ thus each epoch has its own attention matrices, 1 for each GPS layer in the arch
     # figure out how the multiheadattention forward pass works in pytorch
     # does it give an option to see all H heads' attention matrices?
     # figure out what it can output
+
+
+# try bertviz, see if we can modify for pyg

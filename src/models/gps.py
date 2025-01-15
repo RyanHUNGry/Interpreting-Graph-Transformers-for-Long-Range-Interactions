@@ -19,6 +19,8 @@ Tunable model hyperparameters include the number of hidden channels, positional 
 class GPS(torch.nn.Module):
     def __init__(self, data, num_classes, hidden_channels=4, pe_channels=4, num_attention_heads=1, num_layers=1, observe_attention=False):
         super().__init__()
+
+        self.observe_attention = observe_attention
         
         self.pe_lin = nn.Linear(pe_channels, hidden_channels)
         self.pe_norm = nn.LayerNorm(hidden_channels)
@@ -29,7 +31,7 @@ class GPS(torch.nn.Module):
         for _ in range(num_layers):
             mpnn = GCNConv(hidden_channels, hidden_channels)
 
-            if not observe_attention:
+            if not self.observe_attention:
                 transformer = GPSConv(hidden_channels, mpnn, heads=num_attention_heads)
             else:
                 transformer = GPSConvExposedAttention(hidden_channels, mpnn, heads=num_attention_heads)
@@ -56,45 +58,52 @@ class GPS(torch.nn.Module):
         pe = self.pe_norm(pe)
         x = self.input_lin(x)
         x = torch.cat((x, pe), dim=1)
+
+        layer_weights = []
         for layer in self.layers:
-            x = layer(x, edge_index)
+            x, weights = layer(x, edge_index)
+            layer_weights.append(weights)
         
         if type(data) is not Data:
             x = self.readout(x, data.batch)
 
         x = self.lin(x)
         x = self.output(x)
-        return x
+        
+        # return node embeddings and attention matrix per GPS layer
+        return x, layer_weights
     
-def train(gps, data):
+def train(gps, data, epochs=100):
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(gps.parameters(), lr=0.01, weight_decay=5e-4)
     gps.train()
-    for epoch in range(100):
+    for epoch in range(epochs):
         if type(data) is not Data:
             for batch in data:
-                out = gps(batch)
+                out, layer_weights = gps(batch)
                 loss = criterion(out, batch.y)
                 loss.backward()
                 optimizer.step()
                 optimizer.zero_grad()
         else:
-            out = gps(data)
+            out, layer_weights = gps(data)
             loss = criterion(out[data.train_mask], data.y[data.train_mask])
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
+
+    return layer_weights if gps.observe_attention else None
 
 def test(gps, data):
     gps.eval()
     if type(data) is not Data:
         correct = 0
         for batch in data:
-            out = gps(batch)  
+            out, _ = gps(batch)  
             pred = out.argmax(dim=1)
             correct += int((pred == batch.y).sum())
         return correct / len(data.dataset)
-    pred = gps(data).argmax(dim=1)
+    pred = gps(data)[0].argmax(dim=1)
     test_correct = (pred[data.test_mask] == data.y[data.test_mask]).sum()
     test_acc = int(test_correct) / int(data.test_mask.sum())
     train_correct = (pred[data.train_mask] == data.y[data.train_mask]).sum()

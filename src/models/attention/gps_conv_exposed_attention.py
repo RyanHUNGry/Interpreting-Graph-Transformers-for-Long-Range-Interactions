@@ -100,8 +100,6 @@ class GPSConvExposedAttention(torch.nn.Module):
 
         h, weights = self.attn(h, h, h, key_padding_mask=~mask,
                             need_weights=True)
-        
-        print(weights)
 
         h = h[mask]
         h = F.dropout(h, p=self.dropout, training=self.training)
@@ -122,7 +120,8 @@ class GPSConvExposedAttention(torch.nn.Module):
             else:
                 out = self.norm3(out)
 
-        return out
+        # return node embeddings and attention matrix for single GPS layer
+        return out, weights
 
     def __repr__(self) -> str:
         return (f'{self.__class__.__name__}({self.channels}, '
