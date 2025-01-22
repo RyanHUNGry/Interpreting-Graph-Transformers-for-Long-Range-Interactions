@@ -33,12 +33,12 @@ def clique(start, nb_nodes, nb_to_remove=0, role_start=0):
     roles = [role_start] * nb_nodes
     if nb_to_remove > 0:
         lst = np.random.choice(len(edge_list), nb_to_remove, replace=False)
-        print(edge_list, lst)
+        # print(edge_list, lst)
         to_delete = [edge_list[e] for e in lst]
         graph.remove_edges_from(to_delete)
         for e in lst:
-            print(edge_list[e][0])
-            print(len(roles))
+            # print(edge_list[e][0])
+            # print(len(roles))
             roles[edge_list[e][0]] += 1
             roles[edge_list[e][1]] += 1
     mapping_graph = {k: (k + start) for k in range(nb_nodes)}
@@ -336,7 +336,7 @@ def build_graph(
         # add random edges between nodes:
         for p in range(add_random_edges):
             src, dest = np.random.choice(nx.number_of_nodes(basis), 2, replace=False)
-            print(src, dest)
+            # print(src, dest)
             basis.add_edges_from([(src, dest)])
 
     return basis, role_id, plugins

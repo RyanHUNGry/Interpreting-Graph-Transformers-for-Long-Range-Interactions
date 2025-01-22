@@ -115,7 +115,7 @@ def gen_syn1(nb_shapes=80, width_basis=300, feature_generator=None, m=5):
     basis_type = "ba"
     list_shapes = [["house"]] * nb_shapes
 
-    plt.figure(figsize=(8, 6), dpi=300)
+    # (figsize=(8, 6), dpi=300)
 
     G, role_id, _ = synthetic_structsim.build_graph(
         width_basis, basis_type, list_shapes, start=0, m=5
@@ -229,7 +229,7 @@ def gen_syn4(nb_shapes=60, width_basis=8, feature_generator=None, m=4):
     basis_type = "tree"
     list_shapes = [["cycle", 6]] * nb_shapes
 
-    fig = plt.figure(figsize=(8, 6), dpi=300)
+    # (figsize=(8, 6), dpi=300)
 
     G, role_id, plugins = synthetic_structsim.build_graph(
         width_basis, basis_type, list_shapes, start=0
@@ -264,7 +264,7 @@ def gen_syn5(nb_shapes=80, width_basis=8, feature_generator=None, m=3):
     basis_type = "tree"
     list_shapes = [["grid", m]] * nb_shapes
 
-    plt.figure(figsize=(8, 6), dpi=300)
+    # plt.figure(figsize=(8, 6), dpi=300)
 
     G, role_id, _ = synthetic_structsim.build_graph(
         width_basis, basis_type, list_shapes, start=0
