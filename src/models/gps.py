@@ -3,6 +3,7 @@ from torch.nn import ModuleList, Linear, LogSoftmax
 from torch_geometric.nn import GCNConv, GPSConv, global_add_pool
 from src.models.attention.gps_conv_exposed_attention import GPSConvExposedAttention
 from torch_geometric.data.data import Data
+from tqdm import tqdm
 
 import torch.nn as nn
 
@@ -77,7 +78,7 @@ def train(gps, data, epochs=100):
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(gps.parameters(), lr=0.01, weight_decay=5e-4)
     gps.train()
-    for epoch in range(epochs):
+    for epoch in tqdm(range(epochs)):
         if type(data) is not Data:
             for batch in data:
                 out, layer_weights = gps(batch)
