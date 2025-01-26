@@ -1,10 +1,9 @@
 import torch
-from torch.nn import ModuleList, Linear, LogSoftmax
+from torch.nn import ModuleList, LogSoftmax
 from torch_geometric.nn import GCNConv, GPSConv, global_add_pool
 from src.models.attention.gps_conv_exposed_attention import GPSConvExposedAttention
-from torch_geometric.data.data import Data
 from tqdm import tqdm
-
+import inspect
 import torch.nn as nn
 
 """
@@ -39,21 +38,40 @@ class GPS(torch.nn.Module):
 
             self.layers.append(transformer)
 
-        self.lin = Linear(hidden_channels, num_classes)
+        self.lin = nn.Linear(hidden_channels, num_classes)
         self.output = LogSoftmax(dim=1)
 
-        if type(data) is not Data:
-            self.readout = global_add_pool
-            return
+        # if type(data) is not Data:
+        #     self.readout = global_add_pool
+        #     return
 
-    def forward(self, data):
-        x, edge_index = data.x, data.edge_index
+    # Explainer.get_prediction() calls foward(x, edge_index)
+    # Explainer.get_target() calls forward(prediction) where prediction = Explainer.get_prediction(...), so analyze context for expected variables
+    # For non-explainability usage, specify data
+    def forward(self, *argv, data=None, **kwargs):
+        caller_frame = inspect.currentframe().f_back
+        expected_vars = caller_frame.f_code.co_varnames
 
-        pe = torch.empty(x.shape[0], 0)
-        if hasattr(data, "random_walk_pe"):
-            pe = torch.cat([pe, data.random_walk_pe], dim=1)
-        if hasattr(data, "laplacian_eigenvector_pe"):
-            pe = torch.cat([pe, data.laplacian_eigenvector_pe], dim=1)
+        # extract from function arguments
+        if argv:
+            x = argv[0]
+            edge_index = argv[1]
+
+            pe = torch.empty(x.shape[0], 0)
+            for p in kwargs:
+                pe = torch.cat([pe, kwargs[p]], dim=1)
+        # extract from data object
+        elif data:
+            x = data.x
+            edge_index = data.edge_index
+
+            pe = torch.empty(x.shape[0], 0)
+            if hasattr(data, "random_walk_pe"):
+                pe = torch.cat([pe, data.random_walk_pe], dim=1)
+            if hasattr(data, "laplacian_eigenvector_pe"):
+                pe = torch.cat([pe, data.laplacian_eigenvector_pe], dim=1)
+        else:
+            raise ValueError("Either data object or explicit graph information must be provided")
 
         pe = self.pe_lin(pe)
         pe = self.pe_norm(pe)
@@ -65,21 +83,25 @@ class GPS(torch.nn.Module):
             x, weights = layer(x, edge_index)
             layer_weights.append(weights)
         
-        if type(data) is not Data:
-            x = self.readout(x, data.batch)
+        # if type(data) is not Data:
+        #     x = self.readout(x, data.batch)
 
         x = self.lin(x)
         x = self.output(x)
         
         # return node embeddings and attention matrix per GPS layer
-        return x, layer_weights
+        if len(expected_vars) == 2:
+            return x, layer_weights
+        else:
+            return x
     
 def train(gps, data, epochs=100):
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(gps.parameters(), lr=0.01, weight_decay=5e-4)
     gps.train()
     for epoch in tqdm(range(epochs)):
-        if type(data) is not Data:
+        if False: # type(data) is not Data:
+            pass
             for batch in data:
                 out, layer_weights = gps(batch)
                 loss = criterion(out, batch.y)
@@ -97,20 +119,22 @@ def train(gps, data, epochs=100):
 
 def test(gps, data):
     gps.eval()
-    if type(data) is not Data:
-        correct = 0
-        for batch in data:
-            out, _ = gps(batch)  
-            pred = out.argmax(dim=1)
-            correct += int((pred == batch.y).sum())
-        return correct / len(data.dataset)
+    # if type(data) is not Data:
+    #     correct = 0
+    #     for batch in data:
+    #         out, _ = gps(batch)  
+    #         pred = out.argmax(dim=1)
+    #         correct += int((pred == batch.y).sum())
+    #     return correct / len(data.dataset)
     pred = gps(data)[0].argmax(dim=1)
     test_correct = (pred[data.test_mask] == data.y[data.test_mask]).sum()
-    test_acc = int(test_correct) / int(data.test_mask.sum())
+    test_acc = int(test_correct) / len(data.test_mask)
     train_correct = (pred[data.train_mask] == data.y[data.train_mask]).sum()
-    train_acc = int(train_correct) / data.train_mask.sum()
+    train_acc = int(train_correct) / len(data.train_mask)
+
     if isinstance(train_acc, torch.Tensor):
         train_acc = train_acc.item()
     if isinstance(test_acc, torch.Tensor):
         test_acc = test_acc.item()
+
     return train_acc, test_acc
