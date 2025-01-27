@@ -39,19 +39,16 @@ class GPS(torch.nn.Module):
             self.layers.append(transformer)
 
         self.lin = nn.Linear(hidden_channels, num_classes)
-        self.output = LogSoftmax(dim=1)
+        self.output = LogSoftmax(dim=-1)
 
         # if type(data) is not Data:
         #     self.readout = global_add_pool
         #     return
 
-    # Explainer.get_prediction() calls foward(x, edge_index)
-    # Explainer.get_target() calls forward(prediction) where prediction = Explainer.get_prediction(...), so analyze context for expected variables
-    # For non-explainability usage, specify data
+    # Explainer.get_prediction() calls forward(x, edge_index, **kwargs)
+    # Explainer.get_target() calls forward(prediction) where prediction = Explainer.get_prediction(...)
+    # For non-explainability usage, specify data as a keyword argument
     def forward(self, *argv, data=None, **kwargs):
-        caller_frame = inspect.currentframe().f_back
-        expected_vars = caller_frame.f_code.co_varnames
-
         # extract from function arguments
         if argv:
             x = argv[0]
@@ -88,12 +85,8 @@ class GPS(torch.nn.Module):
 
         x = self.lin(x)
         x = self.output(x)
-        
-        # return node embeddings and attention matrix per GPS layer
-        if len(expected_vars) == 2:
-            return x, layer_weights
-        else:
-            return x
+
+        return x #, layer_weights
     
 def train(gps, data, epochs=100):
     criterion = torch.nn.CrossEntropyLoss()
@@ -109,13 +102,13 @@ def train(gps, data, epochs=100):
                 optimizer.step()
                 optimizer.zero_grad()
         else:
-            out, layer_weights = gps(data)
+            out = gps(data=data)
             loss = criterion(out[data.train_mask], data.y[data.train_mask])
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
 
-    return layer_weights if gps.observe_attention else None
+    # return layer_weights if gps.observe_attention else None
 
 def test(gps, data):
     gps.eval()
@@ -126,7 +119,7 @@ def test(gps, data):
     #         pred = out.argmax(dim=1)
     #         correct += int((pred == batch.y).sum())
     #     return correct / len(data.dataset)
-    pred = gps(data)[0].argmax(dim=1)
+    pred = gps(data=data).argmax(dim=1)
     test_correct = (pred[data.test_mask] == data.y[data.test_mask]).sum()
     test_acc = int(test_correct) / len(data.test_mask)
     train_correct = (pred[data.train_mask] == data.y[data.train_mask]).sum()
