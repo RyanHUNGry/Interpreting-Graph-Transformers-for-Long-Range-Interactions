@@ -1,4 +1,4 @@
-import tqdm
+from tqdm import tqdm
 from torch import Tensor
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
@@ -7,7 +7,7 @@ def train(model, data, epochs=100):
     model.train()
     criterion = CrossEntropyLoss()
     optimizer = Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
-    for epoch in tqdm.tqdm(range(epochs)):
+    for epoch in tqdm(range(epochs)):
         if False: # type(data) is not Data:
             pass
             for batch in data:
@@ -17,11 +17,11 @@ def train(model, data, epochs=100):
                 optimizer.step()
                 optimizer.zero_grad()
         else:
+            optimizer.zero_grad()
             out = model(data=data)
             loss = criterion(out[data.train_mask], data.y[data.train_mask])
             loss.backward()
             optimizer.step()
-            optimizer.zero_grad()
 
 def test(model, data):
     model.eval()

@@ -6,7 +6,6 @@ import torch.nn.functional as F
 from torch import Tensor
 from torch.nn import Dropout, Linear, Sequential
 
-from torch_geometric.nn.attention import PerformerAttention
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.inits import reset
 from torch_geometric.nn.resolver import (
@@ -98,8 +97,8 @@ class GPSConvExposedAttention(torch.nn.Module):
         # Global attention transformer-style model.
         h, mask = to_dense_batch(x, batch)
 
-        h, weights = self.attn(h, h, h, key_padding_mask=~mask,
-                            need_weights=True)
+        h, _ = self.attn(h, h, h, key_padding_mask=~mask,
+                            need_weights=True, average_attn_weights=True)
 
         h = h[mask]
         h = F.dropout(h, p=self.dropout, training=self.training)
@@ -120,8 +119,7 @@ class GPSConvExposedAttention(torch.nn.Module):
             else:
                 out = self.norm3(out)
 
-        # return node embeddings and attention matrix for single GPS layer
-        return out, weights
+        return out
 
     def __repr__(self) -> str:
         return (f'{self.__class__.__name__}({self.channels}, '

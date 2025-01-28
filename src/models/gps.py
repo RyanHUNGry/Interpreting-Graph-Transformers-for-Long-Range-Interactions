@@ -10,10 +10,6 @@ import torch.nn as nn
 GPS model from the paper "Recipe for a General, Powerful, Scalable Graph Transformer"
 by Ladislav Rampášek, Mikhail Galkin, Vijay Prakash Dwivedi, Anh Tuan Luu, Guy Wolf, Dominique Beaini (https://arxiv.org/abs/2205.12454)
 
-The GPS class and train/test methods, by default, performs node-level classification, but it will use the data instance
-type to determine whether to perform graph-level classification if data is not an instance of torch_geometric.data.data.Data.
-Graph-level classification will apply a summation readout for each node embedding at each layer, and then concatenate the readouts.
-
 Tunable model hyperparameters include the number of hidden channels, positional encoding channels, attention heads, and hidden layers.
 """
 class GPS(torch.nn.Module):
@@ -41,13 +37,8 @@ class GPS(torch.nn.Module):
         self.lin = nn.Linear(hidden_channels, num_classes)
         self.output = LogSoftmax(dim=-1)
 
-        # if type(data) is not Data:
-        #     self.readout = global_add_pool
-        #     return
-
     # Explainer.get_prediction() calls forward(x, edge_index, **kwargs)
-    # Explainer.get_target() calls forward(prediction) where prediction = Explainer.get_prediction(...)
-    # For non-explainability usage, specify data as a keyword argument
+    # User calls forward(data=data)
     def forward(self, *argv, data=None, **kwargs):
         # extract from function arguments
         if argv:
@@ -67,18 +58,14 @@ class GPS(torch.nn.Module):
                 pe = torch.cat([pe, data.random_walk_pe], dim=1)
             if hasattr(data, "laplacian_eigenvector_pe"):
                 pe = torch.cat([pe, data.laplacian_eigenvector_pe], dim=1)
-        else:
-            raise ValueError("Either data object or explicit graph information must be provided")
 
         pe = self.pe_lin(pe)
         pe = self.pe_norm(pe)
         x = self.input_lin(x)
         x = torch.cat((x, pe), dim=1)
 
-        layer_weights = []
         for layer in self.layers:
-            x, weights = layer(x, edge_index)
-            layer_weights.append(weights)
+            x = layer(x, edge_index)
         
         # if type(data) is not Data:
         #     x = self.readout(x, data.batch)
@@ -86,7 +73,7 @@ class GPS(torch.nn.Module):
         x = self.lin(x)
         x = self.output(x)
 
-        return x #, layer_weights
+        return x
     
 def train(gps, data, epochs=100):
     criterion = torch.nn.CrossEntropyLoss()
