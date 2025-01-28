@@ -108,7 +108,7 @@ def train(gps, data, epochs=100):
             optimizer.step()
             optimizer.zero_grad()
 
-    # return layer_weights if gps.observe_attention else None
+        return layer_weights if gps.observe_attention else None
 
 def test(gps, data):
     gps.eval()
