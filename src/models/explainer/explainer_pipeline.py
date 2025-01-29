@@ -16,7 +16,8 @@ class ExplainerPipeline:
         train(self.model, data, epochs=epochs)
 
         # remove hooks so attention weights are not stored during test set evaluation
-        hook.remove_hooks()
+        if hook:
+            hook.remove_hooks()
 
         if hook:
             exp = explainer(**explainer_params, attention_weights = hook.attention_weights)

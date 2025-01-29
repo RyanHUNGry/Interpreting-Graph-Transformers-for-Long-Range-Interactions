@@ -12,9 +12,13 @@ class AttentionExplainer(ExplainerAlgorithm):
         Computes the explanation of the trained model.
         """
         matrix = self.__average_attention_matrices()
+        print(matrix)
         filtered_matrix = self.__filter_edges_from_attention_matrix(matrix, edge_index)
 
         return Explanation(edge_mask=self.attention_weights)
+    
+        # shortest path idea
+        # mask out all the attentions that aren't actually an edge
         # takes in model attention weights, averaged so just one attention matrix
         # choose the 26th row, which attend sto all other nodes. Some edges don't exist, so filter them out. With
         # the remaining, choose the topK or select all, we'll see how many are selected and see if we want a constriant.
@@ -28,6 +32,7 @@ class AttentionExplainer(ExplainerAlgorithm):
         return stacked_matrices.mean(dim=0)
     
     def __filter_edges_from_attention_matrix(self, matrix, edge_index):
+        pass
 
     def supports(self) -> bool:
         """Checks if the explainer supports the user-defined settings provided
