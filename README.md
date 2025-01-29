@@ -18,3 +18,10 @@ Then, attention ground truth, fidelity ->
 
 Try an ensemble method where we extract the final layer's trained MPNN and use GraphGPS
 Then combine with attention weights?
+
+        # shortest path idea
+        # mask out all the attentions that aren't actually an edge
+        # takes in model attention weights, averaged so just one attention matrix
+        # choose the 26th row, which attend sto all other nodes. Some edges don't exist, so filter them out. With
+        # the remaining, choose the topK or select all, we'll see how many are selected and see if we want a constriant.
+        # aggregates based on some condition, then generates edge mask, which should be same size as edge_index
