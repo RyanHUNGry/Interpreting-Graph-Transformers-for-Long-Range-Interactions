@@ -1,7 +1,7 @@
-from torch.nn import MultiheadAttention
+from torch.nn import MultiheadAttention, Module
 
-class GPSHooks:
-    def __init__(self, module):
+class GPSHook:
+    def __init__(self, module: Module) -> None:
         attention_weights = list(filter(lambda m: isinstance(m, MultiheadAttention), module.modules()))
 
         self.hook_removers = []
@@ -12,12 +12,14 @@ class GPSHooks:
             if isinstance(m, MultiheadAttention):
                 self.hook_removers.append(m.register_forward_hook(self.attention_hook))
 
-    def remove_hooks(self):
+    def remove_hooks(self) -> None:
         for hook_remover in self.hook_removers:
             hook_remover.remove()
 
-    # called for each forward pass of MultiheadAttention
-    def attention_hook(self, module, _, out):
+    def attention_hook(self, module: Module, _: None, out: tuple) -> None:
+        """
+        Store the fully trained attention weights per transformer layer
+        """
         attention_layer = self.attention_layer_mapping[module]
         _, w = out
         w = w.detach().clone()

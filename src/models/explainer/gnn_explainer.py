@@ -64,3 +64,4 @@ class GNNExplainer(GNNExplainerBase):
                                      "via message passing inside the model or "
                                      "disable it via `edge_mask_type=None`.")
                 self.hard_edge_mask = self.edge_mask.grad != 0.0
+                

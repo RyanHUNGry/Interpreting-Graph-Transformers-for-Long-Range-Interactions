@@ -4,17 +4,29 @@ from torch_geometric.utils import k_hop_subgraph
 from torch_geometric.explain.metric import groundtruth_metrics, fidelity
 
 class ExplainerPipeline:
-    def __init__(self, data, num_classes, model, explainer, model_params = {}, explainer_params = {}, epochs=300):
+    def __init__(self, data, num_classes, model, explainer, model_params = {}, explainer_params = {}, epochs=300, Hook=None):
         self.data = data
         self.model = model(data, num_classes, **model_params)
+
+        hook = None
+        if Hook:
+            hook = Hook(self.model)
         
         # train model
         train(self.model, data, epochs=epochs)
 
+        # remove hooks so attention weights are not stored during test set evaluation
+        hook.remove_hooks()
+
+        if hook:
+            exp = explainer(**explainer_params, attention_weights = hook.attention_weights)
+        else:
+            exp = explainer(**explainer_params)
+
         # initialize explainer with trained model
         self.explainer = Explainer(
             model = self.model,
-            algorithm = explainer(**explainer_params),
+            algorithm = exp,
             **explainer_params
         )
 
@@ -34,7 +46,7 @@ class ExplainerPipeline:
             raise ValueError("Node index has not been explained yet")
         
         _, _, _, ground_truth_mask = k_hop_subgraph(node_idx, num_hops=num_hops, edge_index=self.data.edge_index)
-        return groundtruth_metrics( ground_truth_mask, self.explanations[node_idx].edge_mask, "accuracy", threshold=0.20)
+        return groundtruth_metrics(ground_truth_mask, self.explanations[node_idx].edge_mask, "accuracy", threshold=0.20)
     
     def get_explanation_fidelity(self, node_idx: int):
         if node_idx not in self.explanations:
