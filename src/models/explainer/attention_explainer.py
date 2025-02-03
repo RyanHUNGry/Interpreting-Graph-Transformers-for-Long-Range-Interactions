@@ -1,5 +1,6 @@
 from torch_geometric.explain.algorithm import ExplainerAlgorithm
 from torch_geometric.explain import Explanation
+from torch_geometric.explain.config import ExplanationType, ModelTaskLevel, ModelReturnType
 from torch import stack, zeros, topk
 
 class AttentionExplainer(ExplainerAlgorithm):
@@ -57,5 +58,21 @@ class AttentionExplainer(ExplainerAlgorithm):
         """Checks if the explainer supports the user-defined settings provided
         in :obj:`self.explainer_config`, :obj:`self.model_config`.
         """
+
+        explanation_type = self.explainer_config.explanation_type
+        task_level = self.model_config.task_level
+        return_type = self.model_config.return_type
+
+        # Curr attention explainer only supports model explanation
+        if explanation_type == ExplanationType.phenomenon:
+            return False
+        
+        # only node (instance) level explanations are supported
+        if task_level == ModelTaskLevel.edge or task_level == ModelTaskLevel.graph:
+            return False
+        
+        # expect GCN and GPS to return logits
+        if return_type != ModelReturnType.raw:
+            return False
 
         return True

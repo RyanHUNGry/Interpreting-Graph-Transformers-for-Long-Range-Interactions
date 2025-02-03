@@ -1,7 +1,8 @@
 from src.models.model import train, test
 from torch_geometric.explain import Explainer
+from torch_geometric.explain.algorithm import DummyExplainer
 from torch_geometric.utils import k_hop_subgraph
-from torch_geometric.explain.metric import groundtruth_metrics, fidelity
+from torch_geometric.explain.metric import groundtruth_metrics, fidelity, characterization_score
 
 class ExplainerPipeline:
     def __init__(self, data, num_classes, model, explainer, model_params = {}, explainer_params = {}, epochs=300, Hook=None):
@@ -22,9 +23,12 @@ class ExplainerPipeline:
         if hook:
             exp = explainer(**explainer_params, attention_weights = hook.attention_weights)
         else:
-            exp = explainer(**explainer_params)
+            exp = explainer(**explainer_params) if not explainer == DummyExplainer else explainer()
 
-        # initialize explainer with trained model
+        # explainer_config and model is passed to both Explainer and to ExplainerAlgorithm via ExplainerAlgorithm.connect(), 
+        # and are accessible under ExplainerAlgorithm.model and ExplainerAlgorithm.explainer_config
+        # module_config has attributes module_config.mode, module_config.task_level, module_config.return_type
+        # these dictate how a certain ExplainerAlgorithm should operate, and unsupported configurations should be specified in ExplainerAlgorithm.supports()
         self.explainer = Explainer(
             model = self.model,
             algorithm = exp,
@@ -54,3 +58,13 @@ class ExplainerPipeline:
             raise ValueError("Node index has not been explained yet")
         
         return fidelity(self.explainer, self.explanations[node_idx])
+    
+    def get_explanation_characterization_score(self, node_idx: int):
+        if node_idx not in self.explanations:
+            raise ValueError("Node index has not been explained yet")
+        
+        pos, neg = fidelity(self.explainer, self.explanations[node_idx])
+        if pos == 0 or neg == 1:
+            return "N/A"
+        
+        return characterization_score(pos, neg)

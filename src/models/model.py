@@ -1,40 +1,48 @@
 from tqdm import tqdm
 from torch import Tensor
-from torch.nn import CrossEntropyLoss
+from torch.nn import CrossEntropyLoss, BCEWithLogitsLoss, Sigmoid
 from torch.optim import Adam
 
 def train(model, data, epochs=100):
+    if not model.return_logits:
+        raise ValueError("Model must return logits for training due to loss functions BCEWithLogitsLoss and CrossEntropyLoss expecting logits")
+    
+    # binary classification, use BCEWithLogitsLoss
+    if model.is_binary_classification:
+        criterion = BCEWithLogitsLoss()
+    else:
+        criterion = CrossEntropyLoss()
+
     model.train()
-    criterion = CrossEntropyLoss()
     optimizer = Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
-    for epoch in tqdm(range(epochs)):
-        if False: # type(data) is not Data:
-            pass
-            for batch in data:
-                out, layer_weights = model(batch)
-                loss = criterion(out, batch.y)
-                loss.backward()
-                optimizer.step()
-                optimizer.zero_grad()
+
+    for _ in tqdm(range(epochs)):
+        optimizer.zero_grad()
+        out = model(data=data)
+
+        # N x 1 tensor to N tensor to work with BCEWithLogitsLoss
+        if isinstance(criterion, BCEWithLogitsLoss):
+            train_out = out[data.train_mask].flatten()
         else:
-            optimizer.zero_grad()
-            out = model(data=data)
-            loss = criterion(out[data.train_mask], data.y[data.train_mask])
-            loss.backward()
-            optimizer.step()
+            train_out = out[data.train_mask]
+
+        train_labels = data.y[data.train_mask].float() if isinstance(criterion, BCEWithLogitsLoss) else data.y[data.train_mask]
+
+        loss = criterion(train_out, train_labels)
+        loss.backward()
+        optimizer.step()
 
 def test(model, data):
     model.eval()
-    # if type(data) is not Data:
-    #     correct = 0
-    #     for batch in data:
-    #         out, _ = model(batch)  
-    #         pred = out.argmax(dim=1)
-    #         correct += int((pred == batch.y).sum())
-    #     return correct / len(data.dataset)
-    pred = model(data=data).argmax(dim=1)
+
+    if model.is_binary_classification:
+        pred = (Sigmoid()(model(data=data)) >= 0.5).int().flatten()
+    else:
+        pred = model(data=data).argmax(dim=1)
+
     test_correct = (pred[data.test_mask] == data.y[data.test_mask]).sum()
     test_acc = int(test_correct) / len(data.test_mask)
+
     train_correct = (pred[data.train_mask] == data.y[data.train_mask]).sum()
     train_acc = int(train_correct) / len(data.train_mask)
 

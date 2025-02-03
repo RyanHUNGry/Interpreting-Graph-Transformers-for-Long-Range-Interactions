@@ -8,8 +8,6 @@ we neeed to train GraphGPS on syn1
 create a function to do a trained model
 
 
-
-
 graph GPS ground truth, fidelity
 Then, attention ground truth, fidelity ->
     While ATT does consider graph structure, it does not explain using node features and can only explain
@@ -25,3 +23,8 @@ Then combine with attention weights?
         # choose the 26th row, which attend sto all other nodes. Some edges don't exist, so filter them out. With
         # the remaining, choose the topK or select all, we'll see how many are selected and see if we want a constriant.
         # aggregates based on some condition, then generates edge mask, which should be same size as edge_index
+
+Try to do the BFS edge masking
+Debug fidelity by generating a random explanation and see if it is 0 | 1
+For the GNNExplainer on GPS, use some thresholding (top percentiel?) or some topK (percentage?) parameter to constrain the amount of data
+Then, try to evaluate a good fidelity elbow 
