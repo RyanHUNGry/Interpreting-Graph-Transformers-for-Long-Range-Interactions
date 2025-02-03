@@ -21,7 +21,7 @@ class ExplainerPipeline:
             hook.remove_hooks()
 
         if hook:
-            exp = explainer(**explainer_params, attention_weights = hook.attention_weights)
+            exp = explainer(**explainer_params, attention_weights = hook.attention_weights, data = self.data)
         else:
             exp = explainer(**explainer_params) if not explainer == DummyExplainer else explainer()
 

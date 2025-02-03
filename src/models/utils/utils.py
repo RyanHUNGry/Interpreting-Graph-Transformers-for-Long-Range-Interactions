@@ -1,5 +1,6 @@
 from torch import arange, tensor, ones, unique, long
 from sklearn.model_selection import train_test_split
+import networkx as nx
 
 def add_train_val_test_masks(data, train_size=0.8):
     idx = arange(data.y.shape[0])

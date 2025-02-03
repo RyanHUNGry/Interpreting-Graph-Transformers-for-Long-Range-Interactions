@@ -1,18 +1,25 @@
 from torch_geometric.explain.algorithm import ExplainerAlgorithm
 from torch_geometric.explain import Explanation
 from torch_geometric.explain.config import ExplanationType, ModelTaskLevel, ModelReturnType
+from torch_geometric.utils import to_networkx
 from torch import stack, zeros, topk
+
+from typing import Literal
+
+from networkx import shortest_path
 
 class AttentionExplainer(ExplainerAlgorithm):
     def __init__(self, **kwargs):
         super().__init__()
         self.attention_weights = kwargs['attention_weights']
+        self.data = to_networkx(kwargs['data']) # network x graph, not pyg
 
-    def __compute_neighbor_explanation(self, edge_index, index, top_k=None) -> Explanation:
+    def __compute_neighbor_explanation_top_k(self, edge_index, index, top_k=None) -> Explanation:
         matrix = self.__average_attention_matrices()
+
         filtered_matrix = self.__filter_edges_from_attention_matrix(matrix, edge_index)
 
-        row = filtered_matrix[index].squeeze()
+        row = filtered_matrix[index].squeeze() # node index i attends to node j in this vector
 
         if top_k and top_k < len(row):
             top_k_tensor = zeros(len(row))
@@ -30,12 +37,21 @@ class AttentionExplainer(ExplainerAlgorithm):
         edge_mask[mask_j] = row[i_vals[mask_j]]
 
         return Explanation(edge_mask=edge_mask)
+    
+    def __compute_neighbor_explanation_shortest_path(self, edge_index, index):
+        matrix = self.__average_attention_matrices()
 
-    def forward(self, model, x, edge_index, target, index=None, **kwargs) -> Explanation:
+    def forward(self, model, x, edge_index, target, index=None, attention_computation_method: Literal["top_k", "shortest_path"] = "top_k", **kwargs) -> Explanation:
         """
         Computes the explanation of the trained model.
         """
-        return self.__compute_neighbor_explanation(edge_index, index, top_k=5)
+        if attention_computation_method == "top_k":
+            return self.__compute_neighbor_explanation_top_k(edge_index, index, top_k=5)
+        elif attention_computation_method == "shortest_path":
+            return self.__compute_neighbor_explanation_shortest_path(edge_index, index)
+        
+    def __find_shortest_path(self, source, target):
+        paths = shortest_path(self.data, source, target)
 
     def __average_attention_matrices(self):
         stacked_matrices = stack(
