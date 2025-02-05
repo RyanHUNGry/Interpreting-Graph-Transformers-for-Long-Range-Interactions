@@ -53,7 +53,9 @@ class GPS(torch.nn.Module):
 
             pe = torch.empty(x.shape[0], 0)
             for p in kwargs:
-                pe = torch.cat([pe, kwargs[p]], dim=1)
+                # kwargs from parent call of Explainer are also used for forward of explainer algorithms
+                if isinstance(kwargs[p], torch.Tensor):
+                    pe = torch.cat([pe, kwargs[p]], dim=1)
         # extract from data object
         elif data:
             x = data.x
@@ -64,7 +66,6 @@ class GPS(torch.nn.Module):
                 pe = torch.cat([pe, data.random_walk_pe], dim=1)
             if hasattr(data, "laplacian_eigenvector_pe"):
                 pe = torch.cat([pe, data.laplacian_eigenvector_pe], dim=1)
-
         pe = self.pe_lin(pe)
         pe = self.pe_norm(pe)
         x = self.input_lin(x)

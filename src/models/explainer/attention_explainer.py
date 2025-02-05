@@ -2,7 +2,7 @@ from torch_geometric.explain.algorithm import ExplainerAlgorithm
 from torch_geometric.explain import Explanation
 from torch_geometric.explain.config import ExplanationType, ModelTaskLevel, ModelReturnType
 from torch_geometric.utils import to_networkx
-from torch import stack, zeros, topk
+from torch import stack, zeros, topk, full, tensor, cat, maximum
 
 from typing import Literal
 
@@ -16,7 +16,6 @@ class AttentionExplainer(ExplainerAlgorithm):
 
     def __compute_neighbor_explanation_top_k(self, edge_index, index, top_k=None) -> Explanation:
         matrix = self.__average_attention_matrices()
-
         filtered_matrix = self.__filter_edges_from_attention_matrix(matrix, edge_index)
 
         row = filtered_matrix[index].squeeze() # node index i attends to node j in this vector
@@ -38,13 +37,37 @@ class AttentionExplainer(ExplainerAlgorithm):
 
         return Explanation(edge_mask=edge_mask)
     
-    def __compute_neighbor_explanation_shortest_path(self, edge_index, index):
+    def __compute_neighbor_explanation_shortest_path(self, edge_index, index, top_k = 5):
         matrix = self.__average_attention_matrices()
 
-    def forward(self, model, x, edge_index, target, index=None, attention_computation_method: Literal["top_k", "shortest_path"] = "top_k", **kwargs) -> Explanation:
+        # Get the top k nodes that node index attends to based off weight
+        _, c = topk(matrix[index], top_k)
+        r = full((c.shape[1], ), index.item())
+        c = c.flatten()
+        coords = stack([r, c], dim=1)
+
+        edge_mask = zeros(edge_index.shape[1])
+
+        # loops through each edge in shortest path
+        for (r, c) in coords:
+            r = r.item()
+            c = c.item()
+
+            shortest_path = tensor(self.__find_shortest_path(source=r, target=c))
+            edges = stack([shortest_path[:-1], shortest_path[1:]])
+            edges = cat([edges, edges.flip(0)], dim=1)
+
+            # generate edge mask from shortest_path
+            edge_mask = maximum(edge_mask, (edge_index.unsqueeze(2) == edges.unsqueeze(1)).all(dim=0).any(dim=1).int())
+
+        return Explanation(edge_mask=edge_mask)
+
+    def forward(self, model, x, edge_index, target, index=None, **kwargs: dict[Literal["top_k", "shortest_path"] | None]) -> Explanation:
         """
         Computes the explanation of the trained model.
         """
+        attention_computation_method = kwargs.get("attention_computation_method", "top_k") # default topk method
+
         if attention_computation_method == "top_k":
             return self.__compute_neighbor_explanation_top_k(edge_index, index, top_k=5)
         elif attention_computation_method == "shortest_path":
@@ -52,6 +75,7 @@ class AttentionExplainer(ExplainerAlgorithm):
         
     def __find_shortest_path(self, source, target):
         paths = shortest_path(self.data, source, target)
+        return paths # generator
 
     def __average_attention_matrices(self):
         stacked_matrices = stack(
