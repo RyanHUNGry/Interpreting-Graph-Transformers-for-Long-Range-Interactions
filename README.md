@@ -1,7 +1,7 @@
-# Paying Attention
+# Interpreting Graph Transformers for Long-Range Interactions
 
 ## Introduction
-*Paying Attention* is an attention-based explainer framework for graph transformers, taking inspiration from attention-based explainers for traditional NLP transformers using global, multihead attention mechanisms.
+*Interpreting Graph Transformers for Long-Range Interactions* is an attention-based explainer framework for graph transformers, taking inspiration from attention-based explainers for traditional NLP transformers using global, multihead attention mechanisms.
 
 #
 we neeed to train GraphGPS on syn1
