@@ -46,7 +46,7 @@ class AttentionExplainer(ExplainerAlgorithm):
         c = c.flatten()
         coords = stack([r, c], dim=1)
 
-        edge_mask = zeros(edge_index.shape[1])
+        edge_mask = zeros(edge_index.shape[1]).int()
 
         # loops through each edge in shortest path
         for (r, c) in coords:
@@ -54,11 +54,12 @@ class AttentionExplainer(ExplainerAlgorithm):
             c = c.item()
 
             shortest_path = tensor(self.__find_shortest_path(source=r, target=c))
-            edges = stack([shortest_path[:-1], shortest_path[1:]])
-            edges = cat([edges, edges.flip(0)], dim=1)
+            edges = stack([shortest_path[:-1], shortest_path[1:]]).flip(0)
+            # edges = cat([edges, edges.flip(0)], dim=1) # uncomment to add bidirectional edges in explanation subgraph
 
             # generate edge mask from shortest_path
-            edge_mask = maximum(edge_mask, (edge_index.unsqueeze(2) == edges.unsqueeze(1)).all(dim=0).any(dim=1).int())
+            curr_edge_mask = (edge_index.unsqueeze(2) == edges.unsqueeze(1)).all(dim=0).any(dim=1).int()
+            edge_mask = maximum(edge_mask, curr_edge_mask)
 
         return Explanation(edge_mask=edge_mask)
 
@@ -67,20 +68,22 @@ class AttentionExplainer(ExplainerAlgorithm):
         Computes the explanation of the trained model.
         """
         attention_computation_method = kwargs.get("attention_computation_method", "top_k") # default topk method
-
+        top_k = kwargs.get("top_k", 5)
         if attention_computation_method == "top_k":
-            return self.__compute_neighbor_explanation_top_k(edge_index, index, top_k=5)
+            return self.__compute_neighbor_explanation_top_k(edge_index, index, top_k)
         elif attention_computation_method == "shortest_path":
-            return self.__compute_neighbor_explanation_shortest_path(edge_index, index)
+            return self.__compute_neighbor_explanation_shortest_path(edge_index, index, top_k)
         
     def __find_shortest_path(self, source, target):
         paths = shortest_path(self.data, source, target)
         return paths # generator
 
     def __average_attention_matrices(self):
-        stacked_matrices = stack(
-            [self.attention_weights[layer][0] for layer in self.attention_weights] # There are L NxN matrices, stacked so LNxN
-        )
+        stacked_matrices = stack([
+            (self.attention_weights[layer][0] - self.attention_weights[layer][0].min()) / 
+            (self.attention_weights[layer][0].max() - self.attention_weights[layer][0].min())
+            for layer in self.attention_weights
+        ])  # There are L NxN matrices, so new stacked dimension is (LN)xN
         
         return stacked_matrices.mean(dim=0)
     
