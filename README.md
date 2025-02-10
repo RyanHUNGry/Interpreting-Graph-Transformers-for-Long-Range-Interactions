@@ -1,30 +1,33 @@
 # Interpreting Graph Transformers for Long-Range Interactions
 
-## Introduction
-*Interpreting Graph Transformers for Long-Range Interactions* is an attention-based explainer framework for graph transformers, taking inspiration from attention-based explainers for traditional NLP transformers using global, multihead attention mechanisms.
+## Aim
+*Interpreting Graph Transformers for Long-Range Interactions* is an attention-based explainer framework for graph transformers, taking inspiration from attention-based explainers for traditional NLP transformers using global, multihead attention mechanisms. 
 
-#
-we neeed to train GraphGPS on syn1
-create a function to do a trained model
+We propose `AttentionExplainer`, an explainability algorithm leveraging the attention matrices during self-attention. We also benchmark our method against other explainability algorithms.
 
+## Run
+The framework is PyTorch based and leverages PyTorch Geometric for GNN operations.
 
-graph GPS ground truth, fidelity
-Then, attention ground truth, fidelity ->
-    While ATT does consider graph structure, it does not explain using node features and can only explain
-    GAT models. Furthermore, in ATT it is not obvious which attention weights need to be used for edge importance, since a 1-hop neighbor of a node can also be a 2-hop neighbor of the same node due to
-    cycles. Each edge’s importance is thus computed as the average attention weight across all layers.
+We supply a Docker image to run our framework and benchmarks. The output of `run.py` will be serialized to disk at `outputs/results.json`. A running execution log will also be available via `stdout` to monitor progress.
 
-Try an ensemble method where we extract the final layer's trained MPNN and use GraphGPS
-Then combine with attention weights?
+> **⚠️ Notice:** Please expect a longer initial image pull. We find that baking the raw data into the image is faster than loading and processing at runtime. Training times can also vary given your machine's allocated CPU and RAM. GraphGPS, the transformer model, may take the longest due to its multi-head, global attention mechanism. Train and test accuracies can slightly differ as well, since our implementation randomly assigns train/test/validation masks. Explainer accuracy and fidelity computation will also vary given model sophistication and explainability method.
 
-        # shortest path idea
-        # mask out all the attentions that aren't actually an edge
-        # takes in model attention weights, averaged so just one attention matrix
-        # choose the 26th row, which attend sto all other nodes. Some edges don't exist, so filter them out. With
-        # the remaining, choose the topK or select all, we'll see how many are selected and see if we want a constriant.
-        # aggregates based on some condition, then generates edge mask, which should be same size as edge_index
+```
+docker pull ghcr.io/ryanhungry/intepreting-graph-transformers-for-long-range-interactions:latest
+docker run --name my-local-benchmark ghcr.io/ryanhungry/intepreting-graph-transformers-for-long-range-interactions:latest
+```
 
-Try to do the BFS edge masking
-Debug fidelity by generating a random explanation and see if it is 0 | 1
-For the GNNExplainer on GPS, use some thresholding (top percentiel?) or some topK (percentage?) parameter to constrain the amount of data
-Then, try to evaluate a good fidelity elbow 
+To see `outputs/results.json` once the container finishes running the model, copy the file from the exited container to your local filesystem.
+
+```
+docker cp <container_id>:/usr/local/intepreting-graph-transformers-for-long-range-interactions/outputs/results.json <local_path>
+```
+
+## Configuration
+We supply a `params.json` configuration file to pass in model parameters, organized by model and dataset type. The base hyperparameter configuration follows our setup in our paper, so the results can be reproduced without additional configuration.
+
+To supply your own custom set of hyperparameters, clone this repository and edit `params.json` locally. Ensure field names are not changed, and that only JSON integer field types are used. Then, mount your `params.json` as a volume into the container during runtime.
+
+```
+docker run -v <local_path>/params.json:/params.json intepreting-graph-transformers-for-long-range-interactions:latest
+```

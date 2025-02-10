@@ -2,7 +2,7 @@
 Customizable GNNExplainer Subclass
 """
 from math import sqrt
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 import torch
 from torch import Tensor
@@ -33,7 +33,7 @@ class GNNExplainer(GNNExplainerBase):
 
         optimizer = torch.optim.Adam(parameters, lr=self.lr)
 
-        for i in tqdm(range(self.epochs)):
+        for i in tqdm(range(self.epochs), disable=kwargs.get("disable_tqdm", False)):
             optimizer.zero_grad()
 
             h = x if self.node_mask is None else x * self.node_mask.sigmoid()

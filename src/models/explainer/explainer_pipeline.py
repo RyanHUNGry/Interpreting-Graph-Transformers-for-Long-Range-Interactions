@@ -3,6 +3,7 @@ from torch_geometric.explain import Explainer
 from torch_geometric.explain.algorithm import DummyExplainer
 from torch_geometric.utils import k_hop_subgraph
 from torch_geometric.explain.metric import groundtruth_metrics, fidelity, characterization_score
+from tqdm import tqdm
 
 class ExplainerPipeline:
     def __init__(self, data, num_classes, model, explainer, model_params = {}, explainer_params = {}, epochs=300, Hook=None):
@@ -68,3 +69,17 @@ class ExplainerPipeline:
             return "N/A"
         
         return characterization_score(pos, neg)
+
+    def get_entire_explanation_fidelity(self, w_plus=0.5, w_minus=0.5, **kwargs):
+        explanations = {}
+        pos, neg = 0, 0
+        for node_idx in tqdm(range(self.data.num_nodes)):
+            explanations[node_idx] = self.explainer(x=self.data.x, edge_index=self.data.edge_index, index=node_idx, target=None, **kwargs)
+            p, n = fidelity(self.explainer, explanations[node_idx])
+            pos += p
+            neg += n
+
+        fid_plus, fid_neg = pos / len(explanations), neg / len(explanations)
+        characterization_score = ((w_plus + w_minus) * fid_plus * (1 - fid_neg))/(w_minus * fid_plus + w_plus * (1 - fid_neg))
+
+        return (fid_plus, fid_neg, characterization_score)

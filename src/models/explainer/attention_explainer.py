@@ -2,7 +2,7 @@ from torch_geometric.explain.algorithm import ExplainerAlgorithm
 from torch_geometric.explain import Explanation
 from torch_geometric.explain.config import ExplanationType, ModelTaskLevel, ModelReturnType
 from torch_geometric.utils import to_networkx
-from torch import stack, zeros, topk, full, tensor, cat, maximum
+from torch import stack, zeros, topk, full, tensor, maximum
 
 from typing import Literal
 
@@ -83,7 +83,7 @@ class AttentionExplainer(ExplainerAlgorithm):
             (self.attention_weights[layer][0] - self.attention_weights[layer][0].min()) / 
             (self.attention_weights[layer][0].max() - self.attention_weights[layer][0].min())
             for layer in self.attention_weights
-        ])  # There are L NxN matrices, so new stacked dimension is (LN)xN
+        ])  # There are L NxN matrices, so new stacked dimension is (LXN)xN
         
         return stacked_matrices.mean(dim=0)
     

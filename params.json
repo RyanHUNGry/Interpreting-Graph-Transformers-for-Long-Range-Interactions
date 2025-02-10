@@ -1,0 +1,87 @@
+{
+    "attention_explainer": {
+        "BAShapes": {
+            "loader": {
+                "num_nodes": 25,
+                "num_edges": 5,
+                "num_motifs": 10,
+                "laplacian_eigenvector_dimensions": 2
+            },
+            "gps": {
+                "pe_channels": 2,
+                "num_layers": 4,
+                "hidden_channels": 4,
+                "num_attention_heads": 1
+            },
+            "nodes_to_explain": [26, 0]
+        },
+        "PascalVOC-SP": {
+            "loader": {
+                "idx": 3
+            },
+            "gps": {
+                "pe_channels": 5,
+                "num_layers": 2,
+                "hidden_channels": 4,
+                "num_attention_heads": 4
+            }
+        }
+    },
+    "dummy_explainer": {
+        "BAShapes": {
+            "loader": {
+                "num_nodes": 25,
+                "num_edges": 5,
+                "num_motifs": 10,
+                "laplacian_eigenvector_dimensions": 2
+            },
+            "gps": {
+                "pe_channels": 2,
+                "num_layers": 4,
+                "hidden_channels": 4,
+                "num_attention_heads": 1
+            },
+            "gcn": {
+                "hidden_channels": 20,
+                "num_layers": 3
+            },
+            "nodes_to_explain": [26, 0]
+        }
+    },
+    "gnn_explainer": {
+        "BAShapes": {
+            "loader": {
+                "num_nodes": 25,
+                "num_edges": 5,
+                "num_motifs": 10,
+                "laplacian_eigenvector_dimensions": 2
+            },
+            "gps": {
+                "pe_channels": 2,
+                "num_layers": 4,
+                "hidden_channels": 4,
+                "num_attention_heads": 1
+            },
+            "gcn": {
+                "hidden_channels": 20,
+                "num_layers": 3
+            },
+            "nodes_to_explain": [26, 0]
+        },
+        "PascalVOC-SP": {
+            "loader": {
+                "idx": 3
+            },
+            "gps": {
+                "pe_channels": 5,
+                "num_layers": 2,
+                "hidden_channels": 4,
+                "num_attention_heads": 1
+            },
+            "gcn": {
+                "hidden_channels": 20,
+                "num_layers": 20
+            }
+        }
+    }
+}
