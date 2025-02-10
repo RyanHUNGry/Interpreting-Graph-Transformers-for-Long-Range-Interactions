@@ -14,7 +14,7 @@ We supply a Docker image to run our framework and benchmarks. The output of `run
 
 ```
 docker pull ghcr.io/ryanhungry/intepreting-graph-transformers-for-long-range-interactions:latest
-docker run --name my-local-benchmark ghcr.io/ryanhungry/intepreting-graph-transformers-for-long-range-interactions:latest
+docker run --name attention-explainer ghcr.io/ryanhungry/intepreting-graph-transformers-for-long-range-interactions:latest
 ```
 
 To see `outputs/results.json` once the container finishes running the model, copy the file from the exited container to your local filesystem.
