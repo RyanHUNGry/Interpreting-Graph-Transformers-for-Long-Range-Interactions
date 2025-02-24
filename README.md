@@ -9,15 +9,26 @@ We propose `AttentionExplainer`, an explainability algorithm leveraging the atte
 
 ## Methods
 
-## Data
+### Data
 
-### BA-Shapes
+#### BA-Shapes
 
-### PascalVOC-SP
+#### PascalVOC-SP
 
-## An Illustrated Example
+### AttentionExplainer
 
 ## Results
+
+Results Table (Placeholder for now)
+
+| Metric 1 | Metric 2 | Metric 3 |
+|----------|----------|----------|
+| Data 1   | Data 2   | Data 3   |
+| Data 4   | Data 5   | Data 6   |
+| Data 7   | Data 8   | Data 9   |
+
+Add Heat Maps and Subgraph Visualizations
+
 
 ## Discussion
 
