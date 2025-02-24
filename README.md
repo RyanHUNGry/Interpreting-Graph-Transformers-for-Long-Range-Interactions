@@ -5,6 +5,18 @@
 
 We propose `AttentionExplainer`, an explainability algorithm leveraging the attention matrices during self-attention. We also benchmark our method against other explainability algorithms.
 
+## Introduction
+
+## Methods
+
+## Data
+
+## An Illustrated Example
+
+## Results
+
+## Discussion
+
 ## Run
 The framework is PyTorch based and leverages PyTorch Geometric for GNN operations.
 
