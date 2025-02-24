@@ -11,11 +11,19 @@ We propose `AttentionExplainer`, an explainability algorithm leveraging the atte
 
 ## Data
 
+### BA-Shapes
+
+### PascalVOC-SP
+
 ## An Illustrated Example
 
 ## Results
 
 ## Discussion
+
+## Conclusion
+
+## References
 
 ## Run
 The framework is PyTorch based and leverages PyTorch Geometric for GNN operations.
