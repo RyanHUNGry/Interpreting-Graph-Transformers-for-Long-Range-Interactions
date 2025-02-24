@@ -15,7 +15,13 @@ We propose `AttentionExplainer`, an explainability algorithm leveraging the atte
 
 #### PascalVOC-SP
 
-### AttentionExplainer
+#### AttentionExplainer
+
+## Metrics
+
+### Ground Truth, Recall, Precision
+
+### Fidelity and Characterization Scores
 
 ## Results
 
