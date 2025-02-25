@@ -3,6 +3,7 @@ from torch_geometric.explain import Explanation
 from torch_geometric.explain.config import ExplanationType, ModelTaskLevel, ModelReturnType
 from torch_geometric.utils import to_networkx
 from torch import stack, zeros, topk, full, tensor, maximum
+import numpy as np
 
 from typing import Literal
 
@@ -13,6 +14,13 @@ class AttentionExplainer(ExplainerAlgorithm):
         super().__init__()
         self.attention_weights = kwargs['attention_weights']
         self.data = to_networkx(kwargs['data']) # network x graph, not pyg
+
+    # def __compute_neighbor_explanation_hops_and_top_k(self, edge_index, index, hops, top_k=None) -> Explanation:
+    #     if hops == 1: # one-hop neighborhood
+    #         return self.__compute_neighbor_explanation_top_k(edge_index, index, top_k)
+
+    #     matrix = self.__average_attention_matrices()
+    #     filtered_matrix = self.__filter_edges_from_attention_matrix(matrix, edge_index)
 
     def __compute_neighbor_explanation_top_k(self, edge_index, index, top_k=None) -> Explanation:
         matrix = self.__average_attention_matrices()

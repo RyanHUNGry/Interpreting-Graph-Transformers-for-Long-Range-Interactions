@@ -4,6 +4,7 @@ from torch_geometric.explain.algorithm import DummyExplainer
 from torch_geometric.utils import k_hop_subgraph
 from torch_geometric.explain.metric import groundtruth_metrics, fidelity, characterization_score
 from tqdm import tqdm
+import random
 
 class ExplainerPipeline:
     def __init__(self, data, num_classes, model, explainer, model_params = {}, explainer_params = {}, epochs=300, Hook=None):
@@ -47,12 +48,12 @@ class ExplainerPipeline:
     def explain(self, node_idx, **kwargs):
         self.explanations[node_idx] = self.explainer(x=self.data.x, edge_index=self.data.edge_index, index=node_idx, target=None, **kwargs)
 
-    def get_explanation_accuracy(self, node_idx: int, num_hops: int = 1):
+    def get_explanation_metrics(self, node_idx: int, num_hops: int = 1):
         if node_idx not in self.explanations:
             raise ValueError("Node index has not been explained yet")
         
         _, _, _, ground_truth_mask = k_hop_subgraph(node_idx, num_hops=num_hops, edge_index=self.data.edge_index)
-        return groundtruth_metrics(ground_truth_mask, self.explanations[node_idx].edge_mask, "accuracy", threshold=0.20)
+        return groundtruth_metrics(ground_truth_mask, self.explanations[node_idx].edge_mask, ["accuracy", "recall", "precision", "f1_score"], threshold=0.20)
     
     def get_explanation_fidelity(self, node_idx: int):
         if node_idx not in self.explanations:
@@ -70,10 +71,11 @@ class ExplainerPipeline:
         
         return characterization_score(pos, neg)
 
-    def get_entire_explanation_fidelity(self, w_plus=0.5, w_minus=0.5, **kwargs):
+    def get_entire_explanation_fidelity(self, w_plus=0.5, w_minus=0.5, m=50, **kwargs):
         explanations = {}
+        random_sample = random.sample(range(self.data.num_nodes), m)
         pos, neg = 0, 0
-        for node_idx in tqdm(range(self.data.num_nodes)):
+        for node_idx in tqdm(random_sample):
             explanations[node_idx] = self.explainer(x=self.data.x, edge_index=self.data.edge_index, index=node_idx, target=None, **kwargs)
             p, n = fidelity(self.explainer, explanations[node_idx])
             pos += p
