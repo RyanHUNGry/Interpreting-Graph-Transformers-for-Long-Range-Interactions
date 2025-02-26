@@ -12,5 +12,6 @@ RUN pip install scipy numpy
 RUN pip install networkx
 RUN pip install matplotlib
 RUN pip install scikit-learn
+RUN pip install captum
 
 CMD ["sh", "-c", "python run.py"]

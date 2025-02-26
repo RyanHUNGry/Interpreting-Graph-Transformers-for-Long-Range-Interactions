@@ -6,8 +6,12 @@ from torch_geometric.explain.metric import groundtruth_metrics, fidelity, charac
 from tqdm import tqdm
 import random
 
+from torch_geometric.explain.algorithm import CaptumExplainer
+
+from captum.attr import IntegratedGradients
+
 class ExplainerPipeline:
-    def __init__(self, data, num_classes, model, explainer, model_params = {}, explainer_params = {}, epochs=300, Hook=None):
+    def __init__(self, data, num_classes, model, explainer: type, model_params = {}, explainer_params = {}, epochs=300, Hook=None):
         self.data = data
         self.model = model(data, num_classes, **model_params)
 
@@ -24,6 +28,8 @@ class ExplainerPipeline:
 
         if hook:
             exp = explainer(**explainer_params, attention_weights = hook.attention_weights, data = self.data)
+        elif explainer == CaptumExplainer:
+            exp = explainer(attribution_method=IntegratedGradients)
         else:
             exp = explainer(**explainer_params) if not explainer == DummyExplainer else explainer()
 

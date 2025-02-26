@@ -66,6 +66,7 @@ class GPS(torch.nn.Module):
                 pe = torch.cat([pe, data.random_walk_pe], dim=1)
             if hasattr(data, "laplacian_eigenvector_pe"):
                 pe = torch.cat([pe, data.laplacian_eigenvector_pe], dim=1)
+    
         pe = self.pe_lin(pe)
         pe = self.pe_norm(pe)
         x = self.input_lin(x)

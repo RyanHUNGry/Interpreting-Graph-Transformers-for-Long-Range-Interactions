@@ -1,11 +1,12 @@
-from torch_geometric.explain.algorithm import ExplainerAlgorithm
+from torch_geometric.explain.algorithm import ExplainerAlgorithm, CaptumExplainer
 from torch_geometric.explain import Explanation
 from torch_geometric.explain.config import ExplanationType, ModelTaskLevel, ModelReturnType
 from torch_geometric.utils import to_networkx
 from torch import stack, zeros, topk, full, tensor, maximum
+
 import numpy as np
 
-from typing import Literal
+from typing import Literal, Union
 
 from networkx import shortest_path
 
@@ -15,6 +16,9 @@ class AttentionExplainer(ExplainerAlgorithm):
         self.attention_weights = kwargs['attention_weights']
         self.data = to_networkx(kwargs['data']) # network x graph, not pyg
 
+    """
+    unecessary as __compute_neighbor_explanation_top_k does the same thing
+    """
     # def __compute_neighbor_explanation_hops_and_top_k(self, edge_index, index, hops, top_k=None) -> Explanation:
     #     if hops == 1: # one-hop neighborhood
     #         return self.__compute_neighbor_explanation_top_k(edge_index, index, top_k)
