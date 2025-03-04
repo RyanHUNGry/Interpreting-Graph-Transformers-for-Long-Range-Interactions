@@ -47,7 +47,7 @@ class GPS(torch.nn.Module):
         # rather than probabilities, so we return logits by default
         if not return_logits and not self.is_binary_classification:
             self.probability_function = LogSoftmax(dim=-1)
-        elif not return_logits and self.is_binary_classification:
+        elif not return_logits or (self.is_binary_classification and self.integrated_gradients):
             self.probability_function = Sigmoid()
 
     # Explainer.get_prediction() calls forward(x, edge_index, **kwargs) -> attached to the explanation object
@@ -96,7 +96,7 @@ class GPS(torch.nn.Module):
 
         if x.dtype is torch.float64:
             x = x.float()
-        if pe.dtype is torch.float64:
+        if pe.dtype is torch.float64: # float64 = double, float = float32, which is default expectation from pytorch
             pe = pe.float()
             
         pe = self.pe_lin(pe)
@@ -109,7 +109,7 @@ class GPS(torch.nn.Module):
 
         x = self.lin(x)
         
-        if not self.return_logits:
+        if not self.return_logits or (self.is_binary_classification and self.integrated_gradients):
             return self.probability_function(x)
         else:
             return x

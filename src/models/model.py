@@ -1,6 +1,6 @@
 from tqdm import tqdm
 from torch import Tensor
-from torch.nn import CrossEntropyLoss, BCEWithLogitsLoss, Sigmoid
+from torch.nn import CrossEntropyLoss, BCEWithLogitsLoss, Sigmoid, BCELoss
 from torch.optim import Adam
 
 def train(model, data, epochs=100):
@@ -8,8 +8,10 @@ def train(model, data, epochs=100):
         raise ValueError("Model must return logits for training due to loss functions BCEWithLogitsLoss and CrossEntropyLoss expecting logits")
     
     # binary classification, use BCEWithLogitsLoss
-    if model.is_binary_classification:
+    if model.is_binary_classification and not model.integrated_gradients:
         criterion = BCEWithLogitsLoss()
+    elif model.is_binary_classification and model.integrated_gradients:
+        criterion = BCELoss() # since IG BC requires probabilities as outputs
     else:
         criterion = CrossEntropyLoss()
 
@@ -21,12 +23,12 @@ def train(model, data, epochs=100):
         out = model(data=data)
 
         # N x 1 tensor to N tensor to work with BCEWithLogitsLoss
-        if isinstance(criterion, BCEWithLogitsLoss):
+        if isinstance(criterion, BCEWithLogitsLoss) or isinstance(criterion, BCELoss):
             train_out = out[data.train_mask].flatten()
         else:
             train_out = out[data.train_mask]
 
-        train_labels = data.y[data.train_mask].float() if isinstance(criterion, BCEWithLogitsLoss) else data.y[data.train_mask]
+        train_labels = data.y[data.train_mask].float() if (isinstance(criterion, BCEWithLogitsLoss) or isinstance(criterion, BCELoss)) else data.y[data.train_mask]
 
         loss = criterion(train_out, train_labels)
         loss.backward()
@@ -35,8 +37,10 @@ def train(model, data, epochs=100):
 def test(model, data):
     model.eval()
 
-    if model.is_binary_classification:
+    if model.is_binary_classification and not model.integrated_gradients:
         pred = (Sigmoid()(model(data=data)) >= 0.5).int().flatten()
+    elif model.is_binary_classification and model.integrated_gradients:
+        pred = (model(data=data) >= 0.5).int().flatten()
     else:
         pred = model(data=data).argmax(dim=1)
 
