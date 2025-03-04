@@ -84,7 +84,7 @@ class GPSConvExposedAttention(torch.nn.Module):
         r"""Runs the forward pass of the module."""
         hs = []
         if self.conv is not None:  # Local MPNN.
-            h = self.conv(x, edge_index, **kwargs)
+            h = self.conv(x, edge_index, **kwargs).float()
             h = F.dropout(h, p=self.dropout, training=self.training)
             h = h + x
             if self.norm1 is not None:

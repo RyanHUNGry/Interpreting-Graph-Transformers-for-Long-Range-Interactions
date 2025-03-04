@@ -11,7 +11,7 @@ from torch_geometric.explain.algorithm import CaptumExplainer
 from captum.attr import IntegratedGradients
 
 class ExplainerPipeline:
-    def __init__(self, data, num_classes, model, explainer: type, model_params = {}, explainer_params = {}, epochs=300, Hook=None):
+    def __init__(self, data, num_classes, model, explainer, threshold_config = None, model_params = {}, explainer_params = {}, epochs=300, Hook=None):
         self.data = data
         self.model = model(data, num_classes, **model_params)
 
