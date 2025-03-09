@@ -1,4 +1,5 @@
 from src.data import loader
+from src.data.utils.utils import merge_pe_with_x
 from src.models.explainer.explainer_pipeline import ExplainerPipeline
 from src.models.gcn import GCN
 from src.models.gps import GPS
@@ -8,7 +9,7 @@ from src.models.model import test
 from src.models.explainer.gnn_explainer import GNNExplainer
 
 from torch_geometric.explain.config import ModelConfig, ThresholdConfig
-from torch_geometric.explain.algorithm import DummyExplainer
+from torch_geometric.explain.algorithm import DummyExplainer, CaptumExplainer
 
 import json
 import os
@@ -20,9 +21,10 @@ def main():
         parameters = json.load(file)
 
     res = {}
-    # res["attention_explainer"] = run_attention_explainer(parameters['attention_explainer'])
-    # res["dummy_explainer"] = run_dummy_explainer(parameters['dummy_explainer'])
+    res["attention_explainer"] = run_attention_explainer(parameters['attention_explainer'])
+    res["dummy_explainer"] = run_dummy_explainer(parameters['dummy_explainer'])
     res["gnn_explainer"] = run_gnn_explainer(parameters['gnn_explainer'])
+    res["ig_explainer"] = run_ig_explainer(parameters['ig_explainer'])
 
     res_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'outputs', 'results.json')
 
@@ -82,8 +84,9 @@ def run_attention_explainer(params):
     for model in ba_shapes_explainer_pipelines:
         metrics = []
         for node in params["BAShapes"]["nodes_to_explain"]:
-            metrics.append([{"node": node, "accuracy": ba_shapes_explainer_pipelines[model].get_explanation_accuracy(node)}])
-        res["BAShapes"][model]["ground_truth_accuracy"] = metrics
+            acc, recall, precision, f1 = ba_shapes_explainer_pipelines[model].get_explanation_metrics(node)
+            metrics.append([{"node": node, "metrics": {"accuracy": acc, "recall": recall, "precision": precision, "f1_score": f1}}])
+        res["BAShapes"][model]["explanation_truth_metrics"] = metrics
 
     for model in ba_shapes_explainer_pipelines:
         pos, neg, characterization = ba_shapes_explainer_pipelines[model].get_entire_explanation_fidelity(laplacian_eigenvector_pe=ba_shapes.laplacian_eigenvector_pe, disable_tqdm=True)
@@ -213,8 +216,9 @@ def run_dummy_explainer(params):
     for model in ba_shapes_explainer_pipelines:
         metrics = []
         for node in params["BAShapes"]["nodes_to_explain"]:
-            metrics.append([{"node": node, "accuracy": ba_shapes_explainer_pipelines[model].get_explanation_accuracy(node)}])
-        res["BAShapes"][model]["ground_truth_accuracy"] = metrics
+            acc, recall, precision, f1 = ba_shapes_explainer_pipelines[model].get_explanation_metrics(node)
+            metrics.append([{"node": node, "metrics": {"accuracy": acc, "recall": recall, "precision": precision, "f1_score": f1}}])
+        res["BAShapes"][model]["explanation_truth_metrics"] = metrics
 
     for model in ba_shapes_explainer_pipelines:
         pos, neg, characterization = ba_shapes_explainer_pipelines[model].get_entire_explanation_fidelity(laplacian_eigenvector_pe=ba_shapes.laplacian_eigenvector_pe, disable_tqdm=True)
@@ -300,8 +304,9 @@ def run_gnn_explainer(params):
     for model in ba_shapes_explainer_pipelines:
         metrics = []
         for node in params["BAShapes"]["nodes_to_explain"]:
-            metrics.append([{"node": node, "accuracy": ba_shapes_explainer_pipelines[model].get_explanation_accuracy(node)}])
-        res["BAShapes"][model]["ground_truth_accuracy"] = metrics
+            acc, recall, precision, f1 = ba_shapes_explainer_pipelines[model].get_explanation_metrics(node)
+            metrics.append([{"node": node, "metrics": {"accuracy": acc, "recall": recall, "precision": precision, "f1_score": f1}}])
+        res["BAShapes"][model]["explanation_truth_metrics"] = metrics
 
     for model in ba_shapes_explainer_pipelines:
         pos, neg, characterization = ba_shapes_explainer_pipelines[model].get_entire_explanation_fidelity(laplacian_eigenvector_pe=ba_shapes.laplacian_eigenvector_pe, disable_tqdm=True)
@@ -382,6 +387,135 @@ def run_gnn_explainer(params):
         }
 
     return res
+
+def run_ig_explainer(params):
+    """
+    Runs IGExplainer with GPS on BAShapes and PascalVOC-SP
+    """
+    res = {}
+
+    ba_shapes_params = params["BAShapes"]["loader"]
+    ba_shapes, ba_shapes_num_classes, _ = loader.load_clean_bashapes(**ba_shapes_params)
+    ba_shapes_ig = merge_pe_with_x(ba_shapes, laplacian_eigenvector_pe=ba_shapes.laplacian_eigenvector_pe)
+
+    ba_shapes_explainer_params = {
+        'explanation_type': 'model',
+        'node_mask_type': 'attributes',
+        'edge_mask_type': 'object',
+        'model_config': ModelConfig(
+            mode='multiclass_classification',
+            task_level='node',
+            return_type='raw',
+        ),
+    }
+
+    ba_shapes_gps_params = params["BAShapes"]["gps"]
+    ba_shapes_explainer_pipelines = {
+        "gps": ExplainerPipeline(
+            ba_shapes_ig,
+            ba_shapes_num_classes,
+            GPS,
+            CaptumExplainer,
+            model_params={
+                'pe_channels': 2,
+                'num_layers': 4,
+                'hidden_channels': 4,
+                'num_attention_heads': 1,
+                'observe_attention': True, 
+                'integrated_gradients': True
+            },
+            explainer_params={
+                **ba_shapes_explainer_params,
+                "threshold_config": ThresholdConfig(threshold_type='topk', value=5),
+            },
+            epochs=400,
+        )
+    }
+
+    gps_train_acc, gps_test_acc = test(ba_shapes_explainer_pipelines["gps"].model, ba_shapes_ig)
+
+    res["BAShapes"] = {
+        "gps": {
+            "train_accuracy": gps_train_acc,
+            "test_accuracy": gps_test_acc
+        }
+    }
+
+    for model in ba_shapes_explainer_pipelines:
+        for node in params["BAShapes"]["nodes_to_explain"]:
+            ba_shapes_explainer_pipelines[model].explain(node, laplacian_eigenvector_pe=ba_shapes.laplacian_eigenvector_pe, attention_computation_method="shortest_path", top_k=5)
+
+    for model in ba_shapes_explainer_pipelines:
+        metrics = []
+        for node in params["BAShapes"]["nodes_to_explain"]:
+            acc, recall, precision, f1 = ba_shapes_explainer_pipelines[model].get_explanation_metrics(node)
+            metrics.append([{"node": node, "metrics": {"accuracy": acc, "recall": recall, "precision": precision, "f1_score": f1}}])
+        res["BAShapes"][model]["explanation_truth_metrics"] = metrics
+
+    for model in ba_shapes_explainer_pipelines:
+        pos, neg, characterization = ba_shapes_explainer_pipelines[model].get_entire_explanation_fidelity(laplacian_eigenvector_pe=ba_shapes.laplacian_eigenvector_pe, disable_tqdm=True)
+        res["BAShapes"][model]["fidelity"] = {
+            "positive": pos,
+            "negative": neg,
+            "characterization": characterization
+        }
+
+    pascalvoc_sp_params = params["PascalVOC-SP"]["loader"]
+    pascalvoc_sp, pascalvoc_sp_num_classes, _ = loader.load_clean_pascalvoc_sp(**pascalvoc_sp_params)
+    pascalvoc_sp_ig = merge_pe_with_x(pascalvoc_sp, random_walk_pe=pascalvoc_sp.random_walk_pe)
+
+    pascalvoc_sp_explainer_params = {
+        'explanation_type': 'model',
+        'node_mask_type': 'attributes',
+        'edge_mask_type': 'object',
+        'model_config': ModelConfig(
+            mode='binary_classification',
+            task_level='node',
+            return_type='probs', # fix the GPS architecture to output probs in model_params
+        )
+    }
+
+    pascalvoc_sp_explainer_pipelines = {
+        "gps": ExplainerPipeline(
+            pascalvoc_sp_ig,
+            pascalvoc_sp_num_classes,
+            GPS,
+            CaptumExplainer,
+            model_params={
+                'pe_channels': 5,
+                'num_layers': 2,
+                'hidden_channels': 4,
+                'num_attention_heads': 4,
+                'observe_attention': True,
+                "integrated_gradients": True
+            },
+            explainer_params={
+                **pascalvoc_sp_explainer_params,
+                "threshold_config": ThresholdConfig(threshold_type='topk', value=5),
+            },
+            epochs=400,
+        ),
+    }
+
+    gps_train_acc, gps_test_acc = test(pascalvoc_sp_explainer_pipelines["gps"].model, pascalvoc_sp_ig)
+
+    res["PascalVOC-SP"] = {
+        "gps": {
+            "train_accuracy": gps_train_acc,
+            "test_accuracy": gps_test_acc
+        }
+    }
+
+    for model in pascalvoc_sp_explainer_pipelines:
+        pos, neg, characterization = pascalvoc_sp_explainer_pipelines[model].get_entire_explanation_fidelity(random_walk_pe=pascalvoc_sp.random_walk_pe, disable_tqdm=True)
+        res["PascalVOC-SP"][model]["fidelity"] = {
+            "positive": pos,
+            "negative": neg,
+            "characterization": characterization
+        }
+
+    return res
+
 
 if __name__ == '__main__':
     main()

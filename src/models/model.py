@@ -7,13 +7,14 @@ def train(model, data, epochs=100):
     if not model.return_logits:
         raise ValueError("Model must return logits for training due to loss functions BCEWithLogitsLoss and CrossEntropyLoss expecting logits")
     
-    # binary classification, use BCEWithLogitsLoss
-    if model.is_binary_classification and not model.integrated_gradients:
-        criterion = BCEWithLogitsLoss()
-    elif model.is_binary_classification and model.integrated_gradients:
-        criterion = BCELoss() # since IG BC requires probabilities as outputs
+    if model.is_binary_classification:
+        if getattr(model, "integrated_gradients", False):
+            criterion = BCELoss()  # IG for binary classification requires probabilities
+        else:
+            criterion = BCEWithLogitsLoss()
     else:
         criterion = CrossEntropyLoss()
+
 
     model.train()
     optimizer = Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
@@ -37,12 +38,15 @@ def train(model, data, epochs=100):
 def test(model, data):
     model.eval()
 
-    if model.is_binary_classification and not model.integrated_gradients:
-        pred = (Sigmoid()(model(data=data)) >= 0.5).int().flatten()
-    elif model.is_binary_classification and model.integrated_gradients:
-        pred = (model(data=data) >= 0.5).int().flatten()
+    if model.is_binary_classification:
+        logits = model(data=data)
+        if getattr(model, "integrated_gradients", False):
+            pred = (logits >= 0.5).int().flatten()  # IG case, assumes probabilities as input
+        else:
+            pred = (Sigmoid()(logits) >= 0.5).int().flatten()  # Convert logits to probabilities
     else:
-        pred = model(data=data).argmax(dim=1)
+        pred = model(data=data).argmax(dim=1)  # Multiclass classification
+
 
     test_correct = (pred[data.test_mask] == data.y[data.test_mask]).sum()
     test_acc = int(test_correct) / len(data.test_mask)

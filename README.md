@@ -1,51 +1,17 @@
 # Interpreting Graph Transformers for Long-Range Interactions
 
-[Website Link](https://ryanhungry.github.io/Interpreting-Graph-Transformers-for-Long-Range-Interactions/)
+## Artifacts
+1. [Report Link](https://github.com/RyanHUNGry/Interpreting-Graph-Transformers-for-Long-Range-Interactions/blob/main/Interpreting_Graph_Transformers_for_Long_Range_Interactions.pdf)
+2. [Website Link](https://ryanhungry.github.io/Interpreting-Graph-Transformers-for-Long-Range-Interactions/)
+3. [Poster Link](https://github.com/RyanHUNGry/Interpreting-Graph-Transformers-for-Long-Range-Interactions/blob/main/poster.pdf)
 
 ## Aim
 *Interpreting Graph Transformers for Long-Range Interactions* is an attention-based explainer framework for graph transformers, taking inspiration from attention-based explainers for traditional NLP transformers using global, multihead attention mechanisms. 
 
-We propose `AttentionExplainer`, an explainability algorithm leveraging the attention matrices during self-attention. We also benchmark our method against other explainability algorithms.
-
-## Introduction
-
-## Methods
-
-### Data
-
-#### BA-Shapes
-
-#### PascalVOC-SP
-
-#### AttentionExplainer
-
-## Metrics
-
-### Ground Truth, Recall, Precision
-
-### Fidelity and Characterization Scores
-
-## Results
-
-Results Table (Placeholder for now)
-
-| Metric 1 | Metric 2 | Metric 3 |
-|----------|----------|----------|
-| Data 1   | Data 2   | Data 3   |
-| Data 4   | Data 5   | Data 6   |
-| Data 7   | Data 8   | Data 9   |
-
-Add Heat Maps and Subgraph Visualizations
-
-
-## Discussion
-
-## Conclusion
-
-## References
+We propose `AttentionExplainer` and `IGExplainer`, explainability algorithm variants that leverage attention matrices and feature-to-output gradients, respectively. We also benchmark our methods against other explainability algorithms.
 
 ## Run
-The framework is PyTorch based and leverages PyTorch Geometric for GNN operations.
+The framework is PyTorch based and leverages PyTorch Geometric for GNN operations. It also uses Captum for integrated gradients.
 
 We supply a Docker image to run our framework and benchmarks. The output of `run.py` will be serialized to disk at `outputs/results.json`. A running execution log will also be available via `stdout` to monitor progress.
 
