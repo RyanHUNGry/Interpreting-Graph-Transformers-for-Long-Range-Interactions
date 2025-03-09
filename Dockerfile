@@ -13,5 +13,6 @@ RUN pip install networkx
 RUN pip install matplotlib
 RUN pip install scikit-learn
 RUN pip install captum
+RUN pip install torchmetrics
 
 CMD ["sh", "-c", "python run.py"]
