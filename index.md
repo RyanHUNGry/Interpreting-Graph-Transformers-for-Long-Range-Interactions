@@ -92,7 +92,7 @@ lying model architecture. This dependency creates an undesirable entanglement be
 
 ![explainerfidelityPA](assets/explainerfidelityPA.PNG)
 
-For PascalVOC-SP, the same is reflected as **IGExplainer** and **AttentionExplainer** are the top two performing models compared to the rest when measured against **Characterization Score**.
+For PascalVOC-SP, the same is reflected as **IGExplainer** and **AttentionExplainer** are the top two performing models compared to the rest when measured against **Characterization Score**, indicating that these models are superior in explaining predictions made by transformer models, specifically GPS.
 
 
 ## Discussion
