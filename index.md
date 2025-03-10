@@ -39,6 +39,8 @@ Once the attention matrix is finalized, two different algorithms can be used to 
 
 An example pipeline of an explanation for a node is illustrated below.
 
+![BAShapesAttentionExplainerExplanation](assets/bashapesexplanation.jpeg)
+
 #### IGExplainer
 
 ## Metrics
