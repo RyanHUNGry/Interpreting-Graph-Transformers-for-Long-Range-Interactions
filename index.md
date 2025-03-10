@@ -20,6 +20,8 @@ BAShapes is a synthetically generated graph that has 25 central nodes, with 5 ed
 
 **PascalVOC-SP** is a node-classification graph dataset originating from semantic segmentation in computer vision. We use this dataset due to its presence of long-range interactions. This dataset has a multitude of graphs, so we selected one for node level, binary classification.
 
+![PascalVOC-SP Graph Visualization](assets/PascalVOC-SP%Graph.PNG)
+
 ## Metrics
 
 We use a multitude of metrics to measure and quantify the efficacy and robustness of our methods to see where various explainers excel.
