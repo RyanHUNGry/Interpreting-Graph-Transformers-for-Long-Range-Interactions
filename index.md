@@ -78,6 +78,8 @@ Characterization scores combine both Fidelity measures into one metric, where a 
 
 ![explainerfidelityBA](assets/explainerfidelityBA.PNG)
 
+### PascalVOC-SP
+
 ![explainerfidelityPA](assets/explainerfidelityPA.PNG)
 
 
