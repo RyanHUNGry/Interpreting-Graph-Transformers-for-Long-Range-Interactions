@@ -112,3 +112,38 @@ Our metrics across all three tables for recall, precision, and fidelity demonstr
 To conclude, the importance of neural network explainability has grown alongside the increasing complexity of both data and model architectures. Specifically, graph neural network explainability aims to shed light on the decision-making processes of models that incorporate both features and relational structures during training. However, there is a notable gap in the literature regarding the explainability of graph transformers. To address this, we propose two methods: **AttentionExplainer** and **IGExplainer**. The former utilizes trained attention weights to greedily generate subgraph explanations, while the latter applies integrated gradients to compute edge attribution for each edge in the graph. Our approach is directly applicable to any graph transformer model that employs self-attention, offering a more appropriate explanation framework for this architecture compared to existing explainer techniques that are primarily designed for message-passing neural networks. Our explainer algorithms provide efficient and vital interpretations of graph transformer decision-making, providing critical model transparency, fairness, ethicality, and legal adherence.
 
 ## References
+
+Alon, Uri, and Eran Yahav. 2020. “On the Bottleneck of Graph Neural Networks and its
+Practical Implications.” CoRR abs/2006.05205. [Link]
+Amara, Kenza, Rex Ying, Zitao Zhang, Zhihao Han, Yinan Shan, Ulrik Brandes, Sebas-
+tian Schemm, and Ce Zhang. 2024. “GraphFramEx: Towards Systematic Evaluation of
+Explainability Methods for Graph Neural Networks.” [Link]
+Dwivedi, Vijay Prakash, Anh Tuan Luu, Thomas Laurent, Yoshua Bengio, and Xavier
+Bresson. 2021. “Graph Neural Networks with Learnable Structural and Positional Rep-
+resentations.” CoRR abs/2110.07875. [Link]
+Dwivedi, Vijay Prakash, Ladislav Rampášek, Mikhail Galkin, Ali Parviz, Guy Wolf,
+Anh Tuan Luu, and Dominique Beaini. 2023. “Long Range Graph Benchmark.” [Link]
+Luo, Dongsheng, Wei Cheng, Dongkuan Xu, Wenchao Yu, Bo Zong, Haifeng Chen,
+and Xiang Zhang. 2020. “Parameterized Explainer for Graph Neural Network.” CoRR
+abs/2011.04573. [Link]
+Rampášek, Ladislav, Mikhail Galkin, Vijay Prakash Dwivedi, Anh Tuan Luu, Guy Wolf,
+and Dominique Beaiani. 2023. “Recipe for a General, Powerful, Scalable Graph Trans-
+former.” [Link]
+Rusch, T. Konstantin, Michael M. Bronstein, and Siddhartha Mishra. 2023. “A Survey
+on Oversmoothing in Graph Neural Networks.” [Link]
+Sundararajan, Mukund, Ankur Taly, and Qiqi Yan. 2017. “Axiomatic Attribution for Deep
+Networks.” CoRR abs/1703.01365. [Link]
+Vaswani, Ashish, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N.
+Gomez, Lukasz Kaiser, and Illia Polosukhin. 2017. “Attention Is All You Need.” CoRR
+abs/1706.03762. [Link]
+Veličković, Petar, Guillem Cucurull, Arantxa Casanova, Adriana Romero, Pietro Liò,
+and Yoshua Bengio. 2018. “Graph Attention Networks.” [Link]
+Wallace, Eric, Jens Tuyls, Junlin Wang, Sanjay Subramanian, Matt Gardner, and
+Sameer Singh. 2019. “AllenNLP Interpret: A Framework for Explaining Predictions of
+NLP Models.” In Proceedings of the 2019 Conference on Empirical Methods in Natural Lan-
+guage Processing and the 9th International Joint Conference on Natural Language Processing
+(EMNLP-IJCNLP): System Demonstrations. Hong Kong, China Association for Computa-
+tional Linguistics. [Link]
+Ying, Rex, Dylan Bourgeois, Jiaxuan You, Marinka Zitnik, and Jure Leskovec. 2019.
+“GNN Explainer: A Tool for Post-hoc Explanation of Graph Neural Networks.” CoRR
+abs/1903.03894. [Link]
