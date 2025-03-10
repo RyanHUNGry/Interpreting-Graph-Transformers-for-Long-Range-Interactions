@@ -38,8 +38,8 @@ For **AttentionExplainer**, we expose the attention matrices from each GPS Trans
 
 Once the attention matrix is finalized, two different algorithms can be used to generate the explanation subgraph:
 
-* Greedily select the top K attention weights for node $$x_i$$, and perform a shortest path walk to generate subgraph explanation
-* Greedily select the top K attention weights for node $$x_i$$ from its subset of neighbors to generate subgraph explanation
+* Greedily select the top K attention weights for node xᵢ, and perform a shortest path walk to generate subgraph explanation
+* Greedily select the top K attention weights for node xᵢ from its subset of neighbors to generate subgraph explanation
 
 An example pipeline of an explanation for a node is illustrated below.
 
@@ -47,7 +47,13 @@ An example pipeline of an explanation for a node is illustrated below.
 
 #### IGExplainer
 
-**IGExplainer** utilizes integrated gradients to generate edge attributions (importance) to a prediction by linearly interpolating from a baseline (
+**IGExplainer** utilizes integrated gradients to generate edge attributions (importance) to a prediction. Integrated Gradients work by starting from a baseline input and interpolating (adding back features slowly) towards the original input while measuring the sensitivity of the changes from each feature in the input by computing the gradient at every step while accumulating the effects of these gradients through integration. In a task such as image classification, the baseline input could be a completely black image as it interpolates towards the original image.
+
+It is important to note that for integrated gradients to work on a graph transformer model, the positional encodings are used to maintain graph topology.
+
+In the case of Graph Transformers, our baseline is a zero edge mask for the graph, and we interpolate towards the input edge mask and determine the attribution of each edge towards the prediction that is made at the node level, and our explanation is generated from that.
+
+In short, **IGExplainer** generates attributions to generate how important each edge is to a prediction by starting from a baseline and measuring the sensitivity of the changes based on the features added at every step to create explanations.
 
 ## Metrics
 
