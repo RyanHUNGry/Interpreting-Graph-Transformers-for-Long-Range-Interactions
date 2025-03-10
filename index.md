@@ -12,6 +12,8 @@ Machine learning models such as graph neural networks
 
 We use two datasets to benchmark our proposed explainers below, **BAShapes** and **PascalVOC-SP**.
 
+![BAShapes Explanation Visualization](assets/bashapes.PNG)
+
 #### BAShapes
 
 BAShapes is a synthetically generated graph that has 25 central nodes, with 5 edges per node, with 10 house motifs attached. 
