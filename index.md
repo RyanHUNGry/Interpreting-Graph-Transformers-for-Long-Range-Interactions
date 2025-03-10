@@ -86,13 +86,19 @@ When measuring **Fidelity** on BAShapes, or more specifically, **Characterizatio
 
 ![explainerfidelityPA](assets/explainerfidelityPA.PNG)
 
-For PascalVOC-SP, the same is reflected as **IGExplainer** and **AttentionExplainer** are the top two performing models compared to the rest when measured against **Characterization Score**
+For PascalVOC-SP, the same is reflected as **IGExplainer** and **AttentionExplainer** are the top two performing models compared to the rest when measured against **Characterization Score**.
 
 
 ## Discussion
 
+Our results indicate that \textbf{AttentionExplainer} and \textbf{IGExplainer} are the most robust compared to GNNExplainer and DummyExplainer when measured against Characterization Score for both BA-Shapes and PascalVOC-SP datasets. This means that \textbf{AttentionExplainer} and \textbf{IGExplainer} produce the highest-quality explanations that are both necessary and sufficient.
+
+While the recall, precision, and F1 score is maximized on GNNExplainer, it is maximized on GCNs, and the high performance is not reflected when applied to GPS. \textbf{IGExplainer} displays competitive results to GNNExplainer in this regard, meaning that it captures  the relevant nodes in the explanations while avoiding the irrelevant ones.
+
+Our metrics across all three tables for recall, precision, and fidelity demonstrate that \textbf{AttentionExplainer} and \textbf{IGExplainer} are able to effectively capture the decision making within long range interactions that occurs in graph transformers.
+
 ## Conclusion
 
-The importance of neural network explainability has grown alongside the increasing complexity of both data and model architectures. Specifically, graph neural network explainability aims to shed light on the decision-making processes of models that incorporate both features and relational structures during training. However, there is a notable gap in the literature regarding the explainability of graph transformers. To address this, we propose two methods: **AttentionExplainer** and **IGExplainer**. The former utilizes trained attention weights to greedily generate subgraph explanations, while the latter applies integrated gradients to compute edge attribution for each edge in the graph. Our approach is directly applicable to any graph transformer model that employs self-attention, offering a more appropriate explanation framework for this architecture compared to existing explainer techniques that are primarily designed for message-passing neural networks. Our explainer algorithms provide efficient and vital interpretations of graph transformer decision-making, providing critical model transparency, fairness, ethicality, and legal adherence.
+To conclude, the importance of neural network explainability has grown alongside the increasing complexity of both data and model architectures. Specifically, graph neural network explainability aims to shed light on the decision-making processes of models that incorporate both features and relational structures during training. However, there is a notable gap in the literature regarding the explainability of graph transformers. To address this, we propose two methods: \textbf{AttentionExplainer} and \textbf{IGExplainer}. The former utilizes trained attention weights to greedily generate subgraph explanations, while the latter applies integrated gradients to compute edge attribution for each edge in the graph. Our approach is directly applicable to any graph transformer model that employs self-attention, offering a more appropriate explanation framework for this architecture compared to existing explainer techniques that are primarily designed for message-passing neural networks. Our explainer algorithms provide efficient and vital interpretations of graph transformer decision-making, providing critical model transparency, fairness, ethicality, and legal adherence.
 
 ## References
