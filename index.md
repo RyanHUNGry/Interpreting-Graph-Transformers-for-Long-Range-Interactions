@@ -8,7 +8,7 @@ Machine learning models such as graph neural networks
 
 ## Methods
 
-### Datas
+### Datasets
 
 We use two datasets to benchmark our proposed explainers below, **BAShapes** and **PascalVOC-SP**.
 
@@ -27,6 +27,17 @@ BAShapes is a synthetically generated graph that has 25 central nodes, with 5 ed
 ### Models
 
 We propose two new explainers: **AttentionExplainer** and **IGExplainer**. In addition to these two, we've also implemented two existing explainers, GNNExplainer and DummyExplainer, for benchmarking and comparison purposes (reflected in the results section).
+
+#### AttentionExplainer
+
+For **AttentionExplainer**, we expose the attention matrices from each GPS Transformer layer during training and utilize them to determine our explanations, which are subgraphs that are generated from the original graph. Min-Max normalization is applied to each trained matrix, and they are all averaged. This final matrix is used to calculate and determine our subgraph explanations.
+
+Once the attention matrix is finalized, two different algorithms can be used to generate the explanation subgraph:
+
+* Greedily select the top K attention weights for node $$x_i$$, and perform a shortest path walk to generate subgraph explanation
+* Greedily select the top K attention weights for node $$x_i$$ from its subset of neighbors to generate subgraph explanation
+
+#### IGExplainer
 
 ## Metrics
 
