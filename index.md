@@ -14,7 +14,7 @@ We use two datasets to benchmark our proposed explainers below, **BAShapes** and
 
 #### BAShapes
 
-BAShapes is a synthetically generated graph that has 25 central nodes, with 5 edges per node, with 10 house motifs attached. The labels of the node correspond to their role in the structure of the house (top, middle, bottom). This structure provides the axiom that nodes determine each other's classes based on their neighboring nodes and their labels.
+BAShapes is a synthetically generated graph that has 25 central nodes, with 5 edges per node, with 10 house motifs attached. The labels of the node correspond to their role in the structure of the house (top, middle, bottom). This structure provides the axiom that nodes determine each other's classes based on their neighboring nodes and their labels, allowing us to obtain an explanation truth mask. Using BAShapes is critical in allowing us to assess the performance of our models because the ground truth for real-world datasets is unknown.
 
 ![BAShapes Explanation Visualization](assets/bashapes.png)
 
