@@ -1,4 +1,4 @@
-## Introduction
+## Interpreting Graph Transformers for Long Range Interactions
 
 ## Methods
 
