@@ -37,6 +37,8 @@ Once the attention matrix is finalized, two different algorithms can be used to 
 * Greedily select the top K attention weights for node $$x_i$$, and perform a shortest path walk to generate subgraph explanation
 * Greedily select the top K attention weights for node $$x_i$$ from its subset of neighbors to generate subgraph explanation
 
+An example pipeline of an explanation for a node is illustrated below.
+
 #### IGExplainer
 
 ## Metrics
