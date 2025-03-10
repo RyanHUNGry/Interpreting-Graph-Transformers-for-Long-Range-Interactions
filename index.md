@@ -1,10 +1,14 @@
-# Interpreting Graph Transformers for Long Range Interactions
+# Interpreting Graph Transformers for Long-Range Interactions
 
 ## Introduction
 
 Graphs are used far and wide in every industry imaginable - they're used to model social networks, biological networks, supply chain systems, and more. 
 
-Machine learning models such as graph neural networks 
+Many powerful machine learning models analyze these graphs and the data and relationships within them to make predictions and perform other important tasks. However, these models are often extremely complex, rendering it difficult to reason about the decision-making process that they go through under the hood.
+
+While interpretability explainers exist for some models, such as Graph Neural Networks (GNNs), not much research has been done on explainability for Graph Transformers, which are arguably more powerful due to their capability to capture long-range dependencies within graphs much more effectively. Inspired by existing graph explainability literature, we extended previous research with new methods and propose two new explainability methods for Graph Transformers- **AttentionExplainer** and **IGExplainer**.
+
+Improved model transparency is vital to build trust in AI systems and enables stakeholders to assess model behavior, diagnose potential biases, and ensure alignment with ethical and regulatory standards. These models are applied in many industries that can have unintended consequences when not fully understood. By fostering a better understanding of such processes, neural network explainability supports accountability, facilitates model debugging, and drives crucial discussions related to ethicality, fairness, and societal impact.
 
 ## Methods
 
