@@ -8,7 +8,7 @@ Machine learning models such as graph neural networks
 
 ## Methods
 
-### Data
+### Datas
 
 We use two datasets to benchmark our proposed explainers below, **BAShapes** and **PascalVOC-SP**.
 
@@ -23,6 +23,10 @@ BAShapes is a synthetically generated graph that has 25 central nodes, with 5 ed
 **PascalVOC-SP** is a node-classification graph dataset originating from semantic segmentation in computer vision. We use this dataset due to its presence of long-range interactions. This dataset has a multitude of graphs, so we selected one for node level, binary classification.
 
 ![PascalVOC-SP Graph Visualization](assets/PascalVOC-SPGraph.PNG)
+
+### Models
+
+We propose two new explainers: **AttentionExplainer** and **IGExplainer**. In addition to these two, we've also implemented two existing explainers, GNNExplainer and DummyExplainer, for benchmarking and comparison purposes (reflected in the results section).
 
 ## Metrics
 
