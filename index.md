@@ -12,7 +12,7 @@ Machine learning models such as graph neural networks
 
 We use two datasets to benchmark our proposed explainers below, **BAShapes** and **PascalVOC-SP**.
 
-![BAShapes Explanation Visualization](assets/bashapes.PNG)
+![BAShapes Explanation Visualization](assets/bashapes.png)
 
 #### BAShapes
 
