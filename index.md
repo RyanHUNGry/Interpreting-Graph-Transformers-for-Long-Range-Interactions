@@ -78,9 +78,15 @@ Characterization scores combine both Fidelity measures into one metric, where a 
 
 This table indicates that **IGExplainer** performs the best on BAShapes with respect to **Explanation Accuracy** (Ground Truth Accuracy) and **Precision** for GPS models.
 
+While **Explanation Accuracy** is high among all explainers, this can be attributed to the limited size of the explanation truth mask, and may not be truly indicative of the truth. Recall, precision, and F1-scores are all better indicators of the models' ability to capture the truth and generate the proper subgraph explanations. This is because recall and precision capture how well the explainer retrieves the relevant edges while avoiding
+irrelevant ones.
+
 ![explainerfidelityBA](assets/explainerfidelityBA.PNG)
 
 When measuring **Fidelity** on BAShapes, or more specifically, **Characterization Score**, **IGExplainer** performs the highest with a score of 65.06, with **AttentionExplainer** performing the second highest with 50.32 compared to all other models. 
+
+ We argue that **Fidelity** is more robust in providing assessments of explanation quality than the former metrics. This is because the former metrics' perceived effectiveness is highly dependent on the under-
+lying model architecture. This dependency creates an undesirable entanglement between model decision-making and explanation generation, where an explanation may not align with the true underlying rationale but still faithfully represent how the model arrived at its decision. This is shown in the F1 Score and **Characterization Score** for **AttentionExplainer**, where a low F1-score is achieved in conjunction with a high **Characterization Score**.
 
 ### PascalVOC-SP
 
