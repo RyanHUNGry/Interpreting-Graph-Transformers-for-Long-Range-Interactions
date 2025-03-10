@@ -43,6 +43,8 @@ An example pipeline of an explanation for a node is illustrated below.
 
 #### IGExplainer
 
+**IGExplainer** utilizes integrated gradients to generate edge attributions (importance) to a prediction by linearly interpolating from a baseline (
+
 ## Metrics
 
 We use a multitude of metrics to measure and quantify the efficacy and robustness of our methods to see where various explainers excel.
