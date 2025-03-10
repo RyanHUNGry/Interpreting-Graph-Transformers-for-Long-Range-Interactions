@@ -72,16 +72,11 @@ Characterization scores combine both Fidelity measures into one metric, where a 
 
 ## Results
 
-Results Table (Placeholder for now)
+![explaineraccuracyBA](assets/explaineraccuracyBA.PNG)
 
-| Metric 1 | Metric 2 | Metric 3 |
-|----------|----------|----------|
-| Data 1   | Data 2   | Data 3   |
-| Data 4   | Data 5   | Data 6   |
-| Data 7   | Data 8   | Data 9   |
+![explainerfidelityBA](assets/explainerfidelityBA.PNG)
 
-
-Add Heat Maps and Subgraph Visualizations
+![explainerfidelityPA](assets/explainerfidelityPA.PNG)
 
 
 ## Discussion
