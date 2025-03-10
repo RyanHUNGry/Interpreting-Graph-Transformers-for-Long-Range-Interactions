@@ -72,6 +72,8 @@ Characterization scores combine both Fidelity measures into one metric, where a 
 
 ## Results
 
+### BAShapes
+
 ![explaineraccuracyBA](assets/explaineraccuracyBA.PNG)
 
 ![explainerfidelityBA](assets/explainerfidelityBA.PNG)
