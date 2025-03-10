@@ -16,7 +16,7 @@ We use a multitude of metrics to measure and quantify the efficacy and robustnes
 
 ### Ground Truth, Recall, Precision
 
-We use ground truth accuracy, recall, and precision only for BAShapes, as generated explanations on this dataset can be compared against a known explanation truth mask.
+We use **ground truth accuracy**, **recall**, and **precision** only for BAShapes, as generated explanations on this dataset can be compared against a known explanation truth mask.
 
 Ground truth accuracy refers to how accurate our generated explanation subgraphs are to the true mask. High ground truth accuracy means that an explainer can capture the proper house motif nodes in a generated explanation.
 
@@ -24,7 +24,16 @@ In addition to ground truth accuracy, we use recall and precision to paint a com
 
 Precision captures the proportion of correct house motif nodes to all the predicted nodes in an explanation. This means that explainers with high precision will capture the correct the proper house motif nodes while ignoring the causally irrelevant ones.
 
+F1-Score is a metric that provides a balanced measure of both recall and precision when evaluating the quality of an explanation.
+
 ### Fidelity and Characterization Scores
+
+We use a metric called **Fidelity** to quantify how "necessary" and "sufficient" our generated explanations are. **Fidelity** has two submetrics for this - **Fid+** and **Fid-**.
+
+* **Fid+** quantifies a "necessary" explanation. An explanation is deemed necessary if the model's prediction changes when it is removed from the initial graph.
+* **Fid-** quantifies a "sufficient" explanation. An explanation is deemed sufficient if the model comes to the same initial prediction with just the explanation subgraph as the entire graph.
+
+Characterization scores combine both Fidelity measures into one metric, where a higher value indicates better performance.
 
 ## Results
 
