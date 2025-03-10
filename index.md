@@ -1,14 +1,24 @@
 # Interpreting Graph Transformers for Long Range Interactions
 
+## Introduction
+
+Graphs are used far and wide in every industry imaginable - they're used to model social networks, biological networks, supply chain systems, and more. 
+
+Machine learning models such as graph neural networks 
+
 ## Methods
 
 ### Data
 
-#### BA-Shapes
+We use two datasets to benchmark our proposed explainers below, **BAShapes** and **PascalVOC-SP**.
+
+#### BAShapes
+
+BAShapes is a synthetically generated graph that has 25 central nodes, with 5 edges per node, with 10 house motifs attached. 
 
 #### PascalVOC-SP
 
-#### AttentionExplainer
+**PascalVOC-SP** is a node-classification graph dataset originating from semantic segmentation in computer vision. We use this dataset due to its presence of long-range interactions. This dataset has a multitude of graphs, so we selected one for node level, binary classification.
 
 ## Metrics
 
@@ -44,6 +54,7 @@ Results Table (Placeholder for now)
 | Data 1   | Data 2   | Data 3   |
 | Data 4   | Data 5   | Data 6   |
 | Data 7   | Data 8   | Data 9   |
+
 
 Add Heat Maps and Subgraph Visualizations
 
