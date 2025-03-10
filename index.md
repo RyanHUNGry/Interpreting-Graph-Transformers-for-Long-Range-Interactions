@@ -76,11 +76,17 @@ Characterization scores combine both Fidelity measures into one metric, where a 
 
 ![explaineraccuracyBA](assets/explaineraccuracyBA.PNG)
 
+This table indicates that **IGExplainer** performs the best on BAShapes with respect to **Explanation Accuracy** (Ground Truth Accuracy) and **Precision** for GPS models.
+
 ![explainerfidelityBA](assets/explainerfidelityBA.PNG)
+
+When measuring **Fidelity** on BAShapes, or more specifically, **Characterization Score**, **IGExplainer** performs the highest with a score of 65.06, with **AttentionExplainer** performing the second highest with 50.32 compared to all other models. 
 
 ### PascalVOC-SP
 
 ![explainerfidelityPA](assets/explainerfidelityPA.PNG)
+
+For PascalVOC-SP, the same is reflected as **IGExplainer** and **AttentionExplainer** are the top two performing models compared to the rest when measured against **Characterization Score**
 
 
 ## Discussion
